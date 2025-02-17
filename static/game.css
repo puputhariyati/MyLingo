@@ -1,0 +1,90 @@
+button {
+    background-color: white;
+    color: grey;
+    border: 1px solid grey;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 5px;
+}
+
+button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
+}
+
+.game-container {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin: 20px auto;
+    gap: 20px;
+}
+
+.column {
+    flex: 1;
+    text-align: center;
+}
+
+.match-btn {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.match-btn.selected {
+    background-color: #9DC08B; /* Updated selected color */
+}
+
+.match-btn.correct {
+    background-color: grey !important; /* Grey background */
+    color: white;
+    pointer-events: none; /* Make it unclickable */
+    opacity: 0.6; /* Slightly faded */
+}
+
+
+.match-btn.wrong {
+    animation: flashRed 0.5s;
+}
+
+@keyframes flashRed {
+    0% { background-color: red; }
+    50% { background-color: white; }  /* Flash effect */
+    100% { background-color: white; } /* Reset to original color */
+}
+
+.home-container {
+    text-align: center;  /* Centers the button */
+    margin-top: 40px;    /* Adds space between game and button */
+}
+
+.home-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #9DC08B; /* Matches selected color */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.home-btn:hover {
+    background-color: #7A9B74; /* Slightly darker on hover */
+}
+
+form {
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+}
+
+p {
+    text-align: center;
+}

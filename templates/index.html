@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyLingo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h1><a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">MyLingo</a></h1>
+
+    <!-- Search Form -->
+    <form action="/search" method="get">
+        <input type="text" name="query" placeholder="Search for a word..." required>
+        <button type="submit" class="main-btn">Search</button>
+    </form>
+
+    <!-- Add Form (Remove undefined 'word' usage) -->
+    <form action="/add" method="post">
+        <input type="text" name="word" placeholder="word">
+        <input type="text" name="meaning" placeholder="meaning">
+        <input type="text" name="example" placeholder="example sentence">
+        <input type="text" name="translation" placeholder="translation">
+        <input type="text" name="tags" placeholder="tags">
+        <button type="submit" class="main-btn">Save</button>
+    </form><br>
+
+    <div class="center-container">
+        <a href="{{ url_for('game') }}">
+            <button class="main-btn">Match the Words</button></a>
+
+        <a href="{{ url_for('quiz') }}">
+            <button class="main-btn">Language Quiz</button>
+        </a>
+    </div>
+
+    <!-- Filters and Sorting Form -->
+    <form method="GET" action="/" style="margin-bottom: 20px;">
+        <label for="alphabet-filter">Alphabet:</label>
+        <select name="alphabet" id="alphabet-filter" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                <option value="{{ letter }}" {% if selected_letter == letter %}selected{% endif %}>{{ letter }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="tag-filter">Tag:</label>
+        <select name="tag" id="tag-filter" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for tag in tags %}
+                <option value="{{ tag }}" {% if selected_tag == tag %}selected{% endif %}>{{ tag }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="sort-filter">Sort by:</label>
+        <select name="sort" id="sort-filter" onchange="this.form.submit()">
+            <option value="newest" {% if selected_sort == "newest" %}selected{% endif %}>Newest</option>
+            <option value="oldest" {% if selected_sort == "oldest" %}selected{% endif %}>Oldest</option>
+            <option value="alphabet" {% if selected_sort == "alphabet" %}selected{% endif %}>Alphabetical</option>
+        </select>
+    </form>
+
+    <div class="word-container">
+        <ul class="word-list">
+            {% for word in words[:10] %}
+                <li class="word-item">
+                    <strong>{{ word["word"] }}</strong>: {{ word["meaning"] }}
+                    <br> Example: {{ word["example"] }}
+                    <br> Translation: {{ word["translation"] }}
+                    <br>
+
+                    {% if word['tags'] %}
+                        {% for tag in word['tags'].split(',') %}
+                            <a href="?page=1&tag={{ tag.strip() }}&alphabet={{ selected_alphabet }}&sort={{ selected_sort }}">
+                                <button class="tag-btn tag tag.selected">{{ tag.strip() }}</button></a>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Edit Form -->
+                    <div class="edit-form" id="editForm{{ word['id'] }}" style="display: none;">
+                        <form action="/edit" method="post">
+                            <input type="hidden" name="id" value="{{ word['id'] }}">
+                            <input type="text" name="word" value="{{ word['word'] }}" placeholder="word">
+                            <input type="text" name="meaning" value="{{ word['meaning'] }}" placeholder="meaning">
+                            <input type="text" name="example" value="{{ word['example'] }}" placeholder="example">
+                            <input type="text" name="translation" value="{{ word['translation'] }}" placeholder="translation">
+                            <input type="text" name="tags" value="{{ word['tags'] }}" placeholder="tags">
+                            <button type="submit">Save</button>
+                            <button type="button" onclick="toggleEdit('{{ word['id'] }}')">Cancel</button>
+                        </form>
+                    </div>
+
+                    <!-- Edit Button -->
+                    <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
+
+                    <!-- Delete Form -->
+                    <form action="/delete" method="post" style="display: inline;">
+                        <input type="hidden" name="id" value="{{ word['id'] }}">
+                        <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <ul class="word-list">
+            {% for word in words[10:20] %}
+                <li class="word-item">
+                    <strong>{{ word["word"] }}</strong>: {{ word["meaning"] }}
+                    <br> Example: {{ word["example"] }}
+                    <br> Translation: {{ word["translation"] }}
+                    <br>
+
+                    {% if word['tags'] %}
+                        {% for tag in word['tags'].split(',') %}
+                            <a href="/filter?tag={{ tag.strip() }}">
+                                <button class="tag-btn tag tag.selected">{{ tag.strip() }}</button></a>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Edit Form -->
+                    <div class="edit-form" id="editForm{{ word['id'] }}" style="display: none;">
+                        <form action="/edit" method="post">
+                            <input type="hidden" name="id" value="{{ word['id'] }}">
+                            <input type="text" name="word" value="{{ word['word'] }}" placeholder="word">
+                            <input type="text" name="meaning" value="{{ word['meaning'] }}" placeholder="meaning">
+                            <input type="text" name="example" value="{{ word['example'] }}" placeholder="example">
+                            <input type="text" name="translation" value="{{ word['translation'] }}" placeholder="translation">
+                            <input type="text" name="tags" value="{{ word['tags'] }}" placeholder="tags">
+                            <button type="submit">Save</button>
+                            <button type="button" onclick="toggleEdit('{{ word['id'] }}')">Cancel</button>
+                        </form>
+                    </div>
+
+                    <!-- Edit Button -->
+                    <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
+
+                    <!-- Delete Form -->
+                    <form action="/delete" method="post" style="display: inline;">
+                        <input type="hidden" name="id" value="{{ word['id'] }}">
+                        <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="?page=1&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">1</a>
+            <a href="?page={{ page-1 }}&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">Previous</a>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+                <a class="active">{{ p }}</a>
+            {% else %}
+                <a href="?page={{ p }}&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page < total_pages %}
+            <a href="?page={{ page+1 }}&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">Next</a>
+        {% endif %}
+    </div>
+
+
+
+    <!-- Load external JavaScript -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Quiz</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='game.css') }}">
+    <script src="{{ url_for('static', filename='quiz.js') }}" defer></script>
+</head>
+<body>
+    <h1>Language Quiz</h1>
+    <p id="question"></p>
+    <form id="quiz-form">
+        <input type="text" id="answer" placeholder="Type your answer"data-correct-answer="">
+        <button type="submit">Submit</button>
+    </form>
+    <p id="feedback"></p>
+    <br><br>
+
+    <!-- Home Button at Bottom -->
+    <div class="home-container">
+        <a href="/" class="home-btn">Home</a>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Matching Game</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='game.css') }}">
+</head>
+<body>
+    <h1>Select the Matching Pairs!</h1>
+    <p>Click on a meaning and then the correct word.</p>
+
+    <div class="game-container">
+        <!-- Meanings Column -->
+        <div class="column">
+            <h2>Meanings</h2>
+            <div id="meanings">
+                {% for meaning in meanings %}
+                    <button class="match-btn" data-type="meaning" data-value="{{ meaning }}">{{ meaning }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Words Column -->
+        <div class="column">
+            <h2>Words</h2>
+            <div id="words">
+                {% for word in words %}
+                    <button class="match-btn" data-type="word" data-value="{{ word_dict[word] }}">{{ word }}</button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Button at Bottom -->
+    <div class="home-container">
+        <a href="/" class="home-btn">Home</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='game.js') }}"></script>
+</body>
+</html>
