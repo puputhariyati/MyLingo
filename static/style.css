@@ -118,3 +118,15 @@ td {
 input[type="checkbox"] {
     margin-right: 5px;
 }
+
+#tagFilterBox {
+    display: none; /* Default hidden */
+    position: absolute; /* Prevent layout shifts */
+    background: white;
+    padding: 10px;
+    border: 1px solid black;
+    z-index: 1000; /* Ensure it's on top */
+    left: 50%;
+    transform: translateX(-50%); /* Center it horizontally */
+    margin-top: 5px; /* Small gap from the button */
+}

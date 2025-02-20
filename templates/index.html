@@ -53,24 +53,26 @@
             <option value="alphabet" {% if selected_sort == "alphabet" %}selected{% endif %}>Alphabetical</option>
         </select>
 
-        <label for="tag-filter">Filter by Tag:</label>
-        <form method="GET">
-            <table>
-                <tr>
-                    {% for tag in tags %}
-                        {% if loop.index0 % 2 == 0 %} <!-- Start a new row every 2 items -->
-                            </tr><tr>
-                        {% endif %}
-                        <td>
-                            <input type="checkbox" name="tags" value="{{ tag }}"
-                                {% if tag in selected_tag %}checked{% endif %}>
-                            {{ tag }}
-                        </td>
-                    {% endfor %}
-                </tr>
-            </table>
-            <button class="main-btn" type="submit">Apply Filters</button>
-        </form>
+        <button class="main-btn" id="filterButton" type="button">Filter by Tag</button>
+        <div id="tagFilterBox" style="display: none;">
+            <form method="GET">
+                <table>
+                    <tr>
+                        {% for tag in tags %}
+                            {% if loop.index0 % 2 == 0 %} <!-- Start a new row every 2 items -->
+                                </tr><tr>
+                            {% endif %}
+                            <td>
+                                <input type="checkbox" name="tags" value="{{ tag }}"
+                                    {% if tag in selected_tag %}checked{% endif %}>
+                                {{ tag }}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </table>
+                <button class="main-btn" type="submit">Apply Filters</button>
+            </form>
+        </div>
 
     </form>
 
