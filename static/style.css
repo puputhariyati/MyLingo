@@ -1,3 +1,8 @@
+h1 {
+    text-align: center;
+    color: #3A7D44
+}
+
 button {
     color: white;
     border: none;
@@ -56,10 +61,6 @@ form {
     text-align: center;
 }
 
-h1 {
-    text-align: center;
-}
-
 .center-container {
     justify-content: center;
     align-items: center;
@@ -102,4 +103,18 @@ h1 {
 .pagination .active {
     font-weight: bold;
     background: #ddd;
+}
+
+table {
+    width: 300px;
+    border-collapse: collapse;
+}
+
+td {
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
 }

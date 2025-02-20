@@ -62,7 +62,7 @@ def index():
 
     # Get filters from request args
     selected_alphabet = request.args.get("alphabet", "")
-    selected_tag = request.args.get("tag", "")
+    selected_tags = request.args.getlist("tags")
     selected_sort = request.args.get("sort", "newest")
     page = int(request.args.get("page", 1))  # Default to page 1
     words_per_page = 20  # Limit words per page
@@ -75,8 +75,9 @@ def index():
     if selected_alphabet:
         conditions.append(f"word LIKE '{selected_alphabet}%'")
 
-    if selected_tag:
-        conditions.append(f"tags LIKE '%{selected_tag}%'")
+    if selected_tags:
+        tag_conditions = " AND ".join(f"tags LIKE '%{tag}%'" for tag in selected_tags)
+        conditions.append(f"({tag_conditions})")
 
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
@@ -118,7 +119,7 @@ def index():
         words=words,
         tags=sorted(tag_set),  # ✅ Ensure tag_set is defined
         selected_alphabet=selected_alphabet,
-        selected_tag=selected_tag,
+        selected_tags=selected_tags,
         selected_sort=selected_sort,
         page=page,  # ✅ Fixed missing comma
         total_pages=total_pages

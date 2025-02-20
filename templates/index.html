@@ -37,19 +37,12 @@
 
     <!-- Filters and Sorting Form -->
     <form method="GET" action="/" style="margin-bottom: 20px;">
+
         <label for="alphabet-filter">Alphabet:</label>
         <select name="alphabet" id="alphabet-filter" onchange="this.form.submit()">
             <option value="">All</option>
             {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
                 <option value="{{ letter }}" {% if selected_letter == letter %}selected{% endif %}>{{ letter }}</option>
-            {% endfor %}
-        </select>
-
-        <label for="tag-filter">Tag:</label>
-        <select name="tag" id="tag-filter" onchange="this.form.submit()">
-            <option value="">All</option>
-            {% for tag in tags %}
-                <option value="{{ tag }}" {% if selected_tag == tag %}selected{% endif %}>{{ tag }}</option>
             {% endfor %}
         </select>
 
@@ -59,6 +52,26 @@
             <option value="oldest" {% if selected_sort == "oldest" %}selected{% endif %}>Oldest</option>
             <option value="alphabet" {% if selected_sort == "alphabet" %}selected{% endif %}>Alphabetical</option>
         </select>
+
+        <label for="tag-filter">Filter by Tag:</label>
+        <form method="GET">
+            <table>
+                <tr>
+                    {% for tag in tags %}
+                        {% if loop.index0 % 2 == 0 %} <!-- Start a new row every 2 items -->
+                            </tr><tr>
+                        {% endif %}
+                        <td>
+                            <input type="checkbox" name="tags" value="{{ tag }}"
+                                {% if tag in selected_tag %}checked{% endif %}>
+                            {{ tag }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            </table>
+            <button class="main-btn" type="submit">Apply Filters</button>
+        </form>
+
     </form>
 
     <div class="word-container">
