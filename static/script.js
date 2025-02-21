@@ -3,20 +3,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let tagLists = {}; // Object to store tags separately for each form
 
-    document.getElementById("filterButton").addEventListener("click", function() {
-        let tagBox = document.getElementById("tagFilterBox");
-        if (tagBox.style.display === "none" || tagBox.style.display === "") {
-            tagBox.style.display = "block";
-        } else {
-            tagBox.style.display = "none";
-        }
-    });
-        // Prevent form from submitting & refreshing the page
-    document.querySelector("#tagFilterBox form").addEventListener("submit", function(event) {
-        event.preventDefault(); // Stop the form from reloading the page
-        console.log("Filters applied! (Form submission prevented)");
-    });
-
     function addTag(event, formType) {
         if (event.key === "Enter" || event.key === ",") {
             event.preventDefault();
@@ -50,12 +36,14 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function updateHiddenTags(formType) {
-        let hiddenInput = document.getElementById(`tags-hidden-${formType}`);
-        if (hiddenInput) {
-            hiddenInput.value = tagLists[formType].join(",");
+    document.getElementById("filterButton").addEventListener("click", function() {
+        let tagBox = document.getElementById("tagFilterBox");
+        if (tagBox.style.display === "none" || tagBox.style.display === "") {
+            tagBox.style.display = "block";
+        } else {
+            tagBox.style.display = "none";
         }
-    }
+    });
 
     // Expose function to window
     window.addTag = addTag;
