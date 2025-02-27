@@ -290,46 +290,100 @@ def refresh_active_pairs():
         active_pairs.append(all_pairs.pop(0))  # Move new pair from all_pairs to active_pairs
 
 
-@app.route('/game')
+@app.route('/game')  # Register the route
 def game():
-    refresh_active_pairs()  # Ensure 5 pairs before rendering
+    tags = get_all_tags()  # Ensure this function fetches tags
+    selected_tag = request.args.getlist('tags')
+    meanings, words, word_dict = get_game_data(selected_tag)  # Modify logic to apply filtering
 
-    # Convert list to dictionary for easy lookup
-    word_dict = dict(active_pairs)
+    # Ensure exactly 5 pairs are selected
+    selected_pairs = random.sample(list(word_dict.items()), min(5, len(word_dict)))
 
-    # Shuffle meanings only (words remain the same)
+    # Extract words & meanings from selected pairs
+    words = [pair[0] for pair in selected_pairs]
+    meanings = [pair[1] for pair in selected_pairs]
+
+    return render_template('game.html',
+                           tags=tags,
+                           selected_tag=selected_tag,
+                           meanings=meanings,
+                           words=words,
+                           word_dict=word_dict)
+
+@app.route('/get_all_tags')  # Fix incorrect route
+def get_all_tags():
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT tags FROM vocabulary")
+    all_tags = cursor.fetchall()
+    conn.close()
+
+    tag_set = set()
+    for row in all_tags:
+        if row["tags"]:
+            tag_list = [tag.strip() for tag in row["tags"].split(",") if tag.strip()]
+            tag_set.update(tag_list)
+
+    return sorted(tag_set)
+
+def get_game_data(selected_tags=None):
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    query = "SELECT word, meaning FROM vocabulary"
+    params = []
+
+    if selected_tags:
+        tag_conditions = " OR ".join(["tags LIKE ?" for _ in selected_tags])
+        query += f" WHERE {tag_conditions}"
+        params = [f"%{tag}%" for tag in selected_tags]
+
+    cursor.execute(query, params)
+    words_data = cursor.fetchall()
+    conn.close()
+
+    word_dict = {row["word"]: row["meaning"] for row in words_data}
+
     words = list(word_dict.keys())
     meanings = list(word_dict.values())
     random.shuffle(meanings)
     random.shuffle(words)
 
-    return render_template('game.html', words=words, meanings=meanings, word_dict=word_dict)
+    return meanings, words, word_dict
 
 
-@app.route('/update_pairs', methods=['POST'])
+# @app.route('/update_pairs', methods=['POST'])
+# def update_pairs():
+#     global active_pairs, all_pairs
+#     data = request.get_json()
+#     matched_word = data.get('word')
+#
+#     print(f"🔹 Matched word received: {matched_word}")  # Debugging
+#
+#     before_removal = list(active_pairs)  # Before state
+#     active_pairs = [pair for pair in active_pairs if
+#                     pair[0] != matched_word and pair[1] != matched_word]  # Remove matched pair
+#
+#     print(f"✅ Before removal: {before_removal}")
+#     print(f"✅ After removal: {active_pairs}")
+#
+#     # Add new pair if available
+#     if all_pairs:
+#         new_pair = all_pairs.pop(0)
+#         active_pairs.append(new_pair)
+#         print(f"✅ Added new pair: {new_pair}")
+#         print(f"✅ Updated active pairs: {active_pairs}")
+#
+#     return jsonify(new_pairs=active_pairs)
+
+@app.route("/update_pairs", methods=["POST"])
 def update_pairs():
-    global active_pairs, all_pairs
-    data = request.get_json()
-    matched_word = data.get('word')
-
-    print(f"🔹 Matched word received: {matched_word}")  # Debugging
-
-    before_removal = list(active_pairs)  # Before state
-    active_pairs = [pair for pair in active_pairs if
-                    pair[0] != matched_word and pair[1] != matched_word]  # Remove matched pair
-
-    print(f"✅ Before removal: {before_removal}")
-    print(f"✅ After removal: {active_pairs}")
-
-    # Add new pair if available
-    if all_pairs:
-        new_pair = all_pairs.pop(0)
-        active_pairs.append(new_pair)
-        print(f"✅ Added new pair: {new_pair}")
-        print(f"✅ Updated active pairs: {active_pairs}")
-
-    return jsonify(new_pairs=active_pairs)
-
+    words = request.get_json()  # Fetch from database
+    new_pairs = random.sample(words, 5)  # Ensure 5 different pairs
+    return jsonify({"new_pairs": new_pairs})
 
 @app.route("/quiz")
 def quiz():

@@ -1,3 +1,28 @@
+h1, h3, p {
+    text-align: center;
+}
+
+.filter-btn {
+    text-align: center;
+    display: block;
+    margin: 10px auto;
+    background-color: #3A7D44;
+    color: white;
+    border: none;
+}
+
+#tagFilterBox {
+    display: none; /* Default hidden */
+    position: absolute; /* Prevent layout shifts */
+    background: white;
+    padding: 10px;
+    border: 1px solid black;
+    z-index: 1000; /* Ensure it's on top */
+    left: 50%;
+    transform: translateX(-50%); /* Center it horizontally */
+    margin-top: 5px; /* Small gap from the button */
+}
+
 button {
     background-color: white;
     color: grey;
@@ -81,10 +106,12 @@ form {
     text-align: center;
 }
 
-h1 {
+.main-btn {
+    background-color: #3A7D44;
+    margin: 3px;
     text-align: center;
 }
 
-p {
-    text-align: center;
+.main-btn:hover     {
+    background-color: #2E5E33;
 }

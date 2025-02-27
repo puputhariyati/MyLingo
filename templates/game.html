@@ -2,11 +2,32 @@
 <html>
 <head>
     <title>Matching Game</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='game.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='game.css') }}">
 </head>
 <body>
     <h1>Select the Matching Pairs!</h1>
     <p>Click on a meaning and then the correct word.</p>
+
+    <button class="filter-btn" id="filterButton" type="button">Filter by Tag</button>
+    <div id="tagFilterBox" style="display: none;">
+        <form method="GET">
+            <table>
+                <tr>
+                    {% for tag in tags %}
+                        {% if loop.index0 % 2 == 0 %} <!-- Start a new row every 2 items -->
+                            </tr><tr>
+                        {% endif %}
+                        <td>
+                            <input type="checkbox" name="tags" value="{{ tag }}"
+                                {% if tag in selected_tag %}checked{% endif %}>
+                            {{ tag }}
+                        </td>
+                    {% endfor %}
+                </tr>
+            </table>
+            <button class="filter-btn" type="submit">Apply Filters</button>
+        </form>
+    </div>
 
     <div class="game-container">
         <!-- Meanings Column -->
@@ -29,6 +50,9 @@
             </div>
         </div>
     </div>
+
+    <h3 id="score">Score: 0</h3>
+    <h3 id="highScore">High Score: 0</h3>
 
     <!-- Home Button at Bottom -->
     <div class="home-container">
