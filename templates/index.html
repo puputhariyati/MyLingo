@@ -10,6 +10,32 @@
 <body>
     <h1><a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">MyLingo</a></h1>
 
+    <div id="login-container">
+        {% if current_user.is_authenticated %}
+            <p>Welcome, {{ current_user.username }}!</p>
+            <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+        {% else %}
+            <button id="login-button">Login</button>
+        {% endif %}
+    </div>
+
+    <!-- Login Box (Initially Hidden) -->
+    <div id="login-box" style="display: none;">
+        <h2>Login</h2>
+        <form id="login-form" method="POST" action="{{ url_for('login') }}">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
+        <button id="close-login">Close</button>
+    </div>
+
     <!-- Search Form -->
     <form action="/search" method="get">
         <input type="text" name="query" placeholder="Search for a word..." required>
@@ -17,14 +43,16 @@
     </form>
 
     <!-- Add Form (Remove undefined 'word' usage) -->
-    <form action="/add" method="post">
-        <input type="text" name="word" placeholder="word">
-        <input type="text" name="meaning" placeholder="meaning">
-        <input type="text" name="example" placeholder="example sentence">
-        <input type="text" name="translation" placeholder="translation">
-        <input type="text" name="tags" placeholder="tags">
-        <button type="submit" class="main-btn">Save</button>
-    </form><br>
+    {% if current_user.is_authenticated %}
+        <form action="/add" method="post">
+            <input type="text" name="word" placeholder="word">
+            <input type="text" name="meaning" placeholder="meaning">
+            <input type="text" name="example" placeholder="example sentence">
+            <input type="text" name="translation" placeholder="translation">
+            <input type="text" name="tags" placeholder="tags">
+            <button type="submit" class="main-btn">Save</button>
+        </form><br>
+    {% endif %}
 
     <div class="center-container">
         <a href="{{ url_for('game') }}">
@@ -107,13 +135,15 @@
                     </div>
 
                     <!-- Edit Button -->
-                    <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
+                    {% if current_user.is_authenticated %}
+                        <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
 
-                    <!-- Delete Form -->
-                    <form action="/delete" method="post" style="display: inline;">
-                        <input type="hidden" name="id" value="{{ word['id'] }}">
-                        <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
-                    </form>
+                        <!-- Delete Form -->
+                        <form action="/delete" method="post" style="display: inline;">
+                            <input type="hidden" name="id" value="{{ word['id'] }}">
+                            <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
+                        </form>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
@@ -148,13 +178,15 @@
                     </div>
 
                     <!-- Edit Button -->
-                    <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
+                    {% if current_user.is_authenticated %}
+                        <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
 
-                    <!-- Delete Form -->
-                    <form action="/delete" method="post" style="display: inline;">
-                        <input type="hidden" name="id" value="{{ word['id'] }}">
-                        <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
-                    </form>
+                        <!-- Delete Form -->
+                        <form action="/delete" method="post" style="display: inline;">
+                            <input type="hidden" name="id" value="{{ word['id'] }}">
+                            <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
+                        </form>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>

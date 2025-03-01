@@ -12,6 +12,68 @@ button {
     border-radius: 8px;
 }
 
+/*Login style*/
+
+#login-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+#login-button {
+    background-color: #9DC08B;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#login-button:hover {
+    background-color: #88A37D;
+}
+
+/* Login Box - Initially Hidden */
+#login-box {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    width: 300px;
+    text-align: center;
+}
+
+#login-box input {
+    width: 100%;
+    margin: 5px 0;
+    padding: 8px;
+    border: 1px solid #ccc;
+}
+
+#submit-login, #close-login {
+    margin-top: 10px;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+#submit-login {
+    background: #28a745;
+    color: white;
+    border: none;
+}
+
+#close-login {
+    background: #dc3545;
+    color: white;
+    border: none;
+}
+
+
 /* Search, Save, and Games buttons */
 .main-btn {
     background-color: #3A7D44;

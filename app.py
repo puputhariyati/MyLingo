@@ -1,4 +1,7 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import sqlite3
 import unicodedata
 import random
@@ -6,6 +9,74 @@ import re  # <-- Ensure regex module is imported
 import math  # Ensure math is imported
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SECRET_KEY'] = 'your_secret_key'
+db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Check if the username already exists
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username already exists. Please choose another one.', 'danger')
+            return redirect(url_for('signup'))
+
+        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+        new_user = User(username=username, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        # Automatically log in the user
+        login_user(new_user)
+        flash('Account created successfully! You are now logged in.', 'success')
+        return redirect(url_for('index'))  # Redirect to homepage
+
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            login_user(user)
+            flash('Logged in successfully!', 'success')
+            return redirect(url_for('index'))  # Redirect to homepage
+        else:
+            flash('Invalid username or password.', 'danger')
+    return redirect(url_for('index'))  # Redirect to homepage
+
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', user=current_user)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
 
 
 # Initialize Database
@@ -303,12 +374,17 @@ def game():
     words = [pair[0] for pair in selected_pairs]
     meanings = [pair[1] for pair in selected_pairs]
 
+    # Shuffle words and meanings separately to prevent alignment
+    random.shuffle(words)
+    random.shuffle(meanings)
+
     return render_template('game.html',
                            tags=tags,
                            selected_tag=selected_tag,
                            meanings=meanings,
                            words=words,
                            word_dict=word_dict)
+
 
 @app.route('/get_all_tags')  # Fix incorrect route
 def get_all_tags():
@@ -355,35 +431,36 @@ def get_game_data(selected_tags=None):
     return meanings, words, word_dict
 
 
-# @app.route('/update_pairs', methods=['POST'])
-# def update_pairs():
-#     global active_pairs, all_pairs
-#     data = request.get_json()
-#     matched_word = data.get('word')
-#
-#     print(f"🔹 Matched word received: {matched_word}")  # Debugging
-#
-#     before_removal = list(active_pairs)  # Before state
-#     active_pairs = [pair for pair in active_pairs if
-#                     pair[0] != matched_word and pair[1] != matched_word]  # Remove matched pair
-#
-#     print(f"✅ Before removal: {before_removal}")
-#     print(f"✅ After removal: {active_pairs}")
-#
-#     # Add new pair if available
-#     if all_pairs:
-#         new_pair = all_pairs.pop(0)
-#         active_pairs.append(new_pair)
-#         print(f"✅ Added new pair: {new_pair}")
-#         print(f"✅ Updated active pairs: {active_pairs}")
-#
-#     return jsonify(new_pairs=active_pairs)
-
 @app.route("/update_pairs", methods=["POST"])
 def update_pairs():
-    words = request.get_json()  # Fetch from database
-    new_pairs = random.sample(words, 5)  # Ensure 5 different pairs
-    return jsonify({"new_pairs": new_pairs})
+    data = request.get_json()
+    matched_word = data.get("matched_word")
+
+    # Fetch updated words from database
+    meanings, words, word_dict = get_game_data()
+
+    print("Before deletion:", word_dict)  # Debugging
+    print("Matched word to remove:", matched_word)  # Debugging
+
+    # Remove matched pair if it exists
+    if matched_word and matched_word in word_dict:
+        del word_dict[matched_word]
+        print(f"{matched_word} removed.")  # Debugging
+    else:
+        print(f"{matched_word} not found in word_dict.")  # Debugging
+
+    # Select a new set of 5 pairs
+    updated_pairs = list(word_dict.items())  # Convert to list after deletion
+    selected_pairs = random.sample(updated_pairs, min(5, len(updated_pairs)))
+
+    words = [pair[0] for pair in selected_pairs]
+    meanings = [pair[1] for pair in selected_pairs]
+
+    print("After deletion:", word_dict)  # Debugging
+
+    return jsonify({"words": words, "meanings": meanings})
+
+
 
 @app.route("/quiz")
 def quiz():
@@ -458,4 +535,6 @@ def check_answer():
 
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

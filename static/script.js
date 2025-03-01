@@ -1,6 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("JavaScript loaded!");
 
+    //Login
+    let loginButton = document.getElementById("login-button");
+    let loginBox = document.getElementById("login-box");
+    let closeLogin = document.getElementById("close-login");
+
+    if (loginButton && loginBox) {
+        loginButton.addEventListener("click", function () {
+            console.log("Login button clicked!");
+            loginBox.style.display = "block"; // Show login box
+        });
+
+        closeLogin.addEventListener("click", function () {
+            loginBox.style.display = "none"; // Hide login box
+        });
+    } else {
+        console.log("Login button or login box NOT found!");
+    }
+
     let tagLists = {}; // Object to store tags separately for each form
 
     function addTag(event, formType) {
