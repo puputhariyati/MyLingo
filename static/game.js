@@ -90,26 +90,33 @@ document.addEventListener("DOMContentLoaded", function () {
                         resetSelection();
                     }, 3000);
                 } else {
-                    if (firstSelection.dataset.value.trim().normalize("NFC") === this.dataset.value.trim().normalize("NFC")) {
+                    console.log("First selected:", firstSelection.dataset.value);
+                    console.log("Second selected:", this.dataset.value);
+
+                    // ✅ Ensure firstSelection exists before accessing dataset
+                    if (firstSelection.dataset.value.trim().normalize("NFC") === this.dataset.value.trim().normalize("NFC")){
                         firstSelection.classList.add("correct");
                         this.classList.add("correct");
 
                         firstSelection.disabled = true;
                         this.disabled = true;
 
-                        correctMatch(); // ✅ Update the score properly
+                        correctMatch();
 
+                        // Remove matched pair from UI and fetch new pair
                         setTimeout(() => {
-                            updatePairs(firstSelection.dataset.value.trim()); // ✅ Fetch new pairs before removing
-                        }, 500);
+                            firstSelection.remove();
+                            this.remove();
+                            updatePairs(firstSelection.innerText);
+                        }, 3000);
                     } else {
-                        firstSelection.classList.add("wrong");
+                        if (firstSelection) firstSelection.classList.add("wrong");
                         this.classList.add("wrong");
 
                         setTimeout(() => {
-                            firstSelection.classList.remove("wrong");
+                            if (firstSelection) firstSelection.classList.remove("wrong");
                             this.classList.remove("wrong");
-                        }, 1000);
+                        }, 3000);
                     }
 
                     clearTimeout(matchTimeout);
@@ -125,22 +132,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updatePairs(matchedWord) {
-    console.log("Matched word being sent:", matchedWord);
-    if (!matchedWord) {
-        console.error("Error: Matched word is undefined or empty!");
-        return;
-    }
+        console.log("Updating pairs for:", matchedWord);
+        // Remove matched buttons from the UI
+        document.querySelectorAll(".correct").forEach(btn => btn.remove());
+
         fetch("/update_pairs", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ matched_word: matchedWord })  // Make sure this sends correctly
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ matched_word: matchedWord })
         })
         .then(response => response.json())
         .then(data => {
-            console.log("Updated pairs:", data);  // Debugging
-            refreshUI(data.words.map((word, i) => [word, data.meanings[i]]));
+            console.log("Updated pairs:", data.new_pairs);
+            document.querySelectorAll(".match-btn").forEach(btn => {
+                if (btn.dataset.value === matchedWord) {
+                    btn.remove();
+                }
+            });
+
+            refreshUI(data.new_pairs);
         })
         .catch(error => console.error("Error updating pairs:", error));
     }
@@ -153,28 +163,26 @@ document.addEventListener("DOMContentLoaded", function () {
         meaningsDiv.innerHTML = "";
         wordsDiv.innerHTML = "";
 
-        setTimeout(() => {  // Small delay to ensure UI refresh
-            newPairs.forEach(pair => {
-                let meaningBtn = document.createElement("button");
-                meaningBtn.classList.add("match-btn");
-                meaningBtn.dataset.type = "meaning";
-                meaningBtn.dataset.value = pair[1];
-//                meaningBtn.dataset.lang = "en-US";
-                meaningBtn.innerText = pair[1];
+        newPairs.forEach(pair => {
+            let meaningBtn = document.createElement("button");
+            meaningBtn.classList.add("match-btn");
+            meaningBtn.dataset.type = "meaning";
+            meaningBtn.dataset.value = pair[1];
+            meaningBtn.dataset.lang = "en-US"; // English meanings
+            meaningBtn.innerText = pair[1];
 
-                let wordBtn = document.createElement("button");
-                wordBtn.classList.add("match-btn");
-                wordBtn.dataset.type = "word";
-                wordBtn.dataset.value = pair[1];  // Fix here!
-//                wordBtn.dataset.lang = "fr-FR";
-                wordBtn.innerText = pair[0];
+            let wordBtn = document.createElement("button");
+            wordBtn.classList.add("match-btn");
+            wordBtn.dataset.type = "word";
+            wordBtn.dataset.value = pair[1];
+            wordBtn.dataset.lang = "fr-FR"; // French words
+            wordBtn.innerText = pair[0];
 
-                meaningsDiv.appendChild(meaningBtn);
-                wordsDiv.appendChild(wordBtn);
-            });
+            meaningsDiv.appendChild(meaningBtn);
+            wordsDiv.appendChild(wordBtn);
+        });
 
-            attachClickEvents();  // Ensure buttons get event listeners
-        }, 100);
+        attachClickEvents(); // Re-attach event listeners to new buttons
     }
 
     attachClickEvents();

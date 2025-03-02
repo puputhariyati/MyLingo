@@ -442,24 +442,39 @@ def update_pairs():
     print("Before deletion:", word_dict)  # Debugging
     print("Matched word to remove:", matched_word)  # Debugging
 
+    # Find the word key to remove (if user clicked the meaning)
+    key_to_remove = None
+    for word, meaning in word_dict.items():
+        if meaning == matched_word or word == matched_word:
+            key_to_remove = word
+            break
+
     # Remove matched pair if it exists
-    if matched_word and matched_word in word_dict:
-        del word_dict[matched_word]
-        print(f"{matched_word} removed.")  # Debugging
+    if key_to_remove:
+        del word_dict[key_to_remove]
+        print(f"{key_to_remove} removed.")  # Debugging
     else:
         print(f"{matched_word} not found in word_dict.")  # Debugging
 
-    # Select a new set of 5 pairs
-    updated_pairs = list(word_dict.items())  # Convert to list after deletion
-    selected_pairs = random.sample(updated_pairs, min(5, len(updated_pairs)))
+    # Save the updated dictionary back to database (if needed)
+    _game_data(word_dict)  # <-- Make sure to update your database here
 
-    words = [pair[0] for pair in selected_pairs]
-    meanings = [pair[1] for pair in selected_pairs]
+    # Fetch updated data again after deletion
+    meanings, words, word_dict = get_game_data()
+
+    # Select a new set of 5 pairs
+    updated_pairs = list(word_dict.items())
+
+    if updated_pairs:
+        selected_pairs = random.sample(updated_pairs, min(5, len(updated_pairs)))
+        words = [pair[0] for pair in selected_pairs]
+        meanings = [pair[1] for pair in selected_pairs]
+    else:
+        words, meanings = [], []  # No words left
 
     print("After deletion:", word_dict)  # Debugging
 
     return jsonify({"words": words, "meanings": meanings})
-
 
 
 @app.route("/quiz")
