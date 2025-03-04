@@ -73,24 +73,20 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".match-btn").forEach(button => {
             button.addEventListener("click", function () {
 
-//                let lang = this.dataset.lang || "en-US";
-                let text = this.innerText;
-
-//                console.log(`Button clicked: ${text} (${lang})`);
-                console.log(`Button clicked: ${text}`);
-//                speakText(text, lang);
-
+                //Prevents users from clicking on already matched or disabled buttons.
                 if (this.classList.contains("correct") || this.disabled) return;
+
+                const text = this.innerText;
+                console.log(`Button clicked: ${text}`);
 
                 if (!firstSelection) {
                     firstSelection = this;
                     firstSelection.classList.add("selected");
-
+                    console.log("First selected:", firstSelection.dataset.value);
                     matchTimeout = setTimeout(() => {
                         resetSelection();
                     }, 3000);
-                } else {
-                    console.log("First selected:", firstSelection.dataset.value);
+                } else {  // Ensure second selection is a different button
                     console.log("Second selected:", this.dataset.value);
 
                     // ✅ Ensure firstSelection exists before accessing dataset
@@ -101,24 +97,34 @@ document.addEventListener("DOMContentLoaded", function () {
                         firstSelection.disabled = true;
                         this.disabled = true;
 
+                        // For Scoring
                         correctMatch();
 
-                        // Remove matched pair from UI and fetch new pair
+                        // ✅ Remove both elements after a short delay
                         setTimeout(() => {
-                            firstSelection.remove();
-                            this.remove();
-                            updatePairs(firstSelection.innerText);
+                            let firstSelectionStored = firstSelection; // Store the reference before reset
+                            let secondSelectionStored = this; // Store second selection reference
+
+                            console.log("👉 First selection:", firstSelectionStored ? firstSelectionStored.innerText : "Already null");
+                            console.log("👉 Second selection:", this ? this.innerText : "Already null");
+                            if (firstSelection) {
+                                firstSelection.parentNode.removeChild(firstSelectionStored); // Alternative removal ✅
+                            }
+                            if (this) {
+                                this.parentNode.removeChild(this); // Alternative removal ✅
+                            }
+                            // ✅ Reset firstSelection properly AFTER removing elements
+                            firstSelection = null;
                         }, 3000);
                     } else {
-                        if (firstSelection) firstSelection.classList.add("wrong");
+                        firstSelection.classList.add("wrong");
                         this.classList.add("wrong");
 
                         setTimeout(() => {
-                            if (firstSelection) firstSelection.classList.remove("wrong");
+                            firstSelection.classList.remove("wrong");
                             this.classList.remove("wrong");
-                        }, 3000);
+                        }, 1000);
                     }
-
                     clearTimeout(matchTimeout);
                     resetSelection();
                 }
@@ -128,33 +134,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function resetSelection() {
         document.querySelectorAll(".selected").forEach(btn => btn.classList.remove("selected"));
-        firstSelection = null;
     }
 
     function updatePairs(matchedWord) {
         console.log("Updating pairs for:", matchedWord);
-        // Remove matched buttons from the UI
-        document.querySelectorAll(".correct").forEach(btn => btn.remove());
-
-        fetch("/update_pairs", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ matched_word: matchedWord })
+        fetch('/update_pairs', {
+            method: 'POST',
+            body: JSON.stringify({ word: matchedWord }),
+            headers: { "Content-Type": "application/json" }
         })
         .then(response => response.json())
         .then(data => {
-            console.log("Updated pairs:", data.new_pairs);
+            console.log("New pairs received:", data.new_pairs);
+
             document.querySelectorAll(".match-btn").forEach(btn => {
                 if (btn.dataset.value === matchedWord) {
                     btn.remove();
                 }
             });
-
             refreshUI(data.new_pairs);
         })
         .catch(error => console.error("Error updating pairs:", error));
     }
-
 
     function refreshUI(newPairs) {
         const meaningsDiv = document.getElementById("meanings");

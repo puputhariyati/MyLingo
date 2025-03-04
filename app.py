@@ -349,18 +349,6 @@ all_pairs = load_all_pairs()
 active_pairs = []  # Start empty, will fill dynamically
 
 
-# Function to maintain exactly 5 active pairs
-def refresh_active_pairs():
-    global active_pairs, all_pairs
-
-    # Reload all pairs if empty
-    if not all_pairs:
-        all_pairs = load_all_pairs()  # Reload from DB
-
-    while len(active_pairs) < 5 and all_pairs:
-        active_pairs.append(all_pairs.pop(0))  # Move new pair from all_pairs to active_pairs
-
-
 @app.route('/game')  # Register the route
 def game():
     tags = get_all_tags()  # Ensure this function fetches tags
@@ -404,6 +392,7 @@ def get_all_tags():
 
     return sorted(tag_set)
 
+
 def get_game_data(selected_tags=None):
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
@@ -433,48 +422,36 @@ def get_game_data(selected_tags=None):
 
 @app.route("/update_pairs", methods=["POST"])
 def update_pairs():
+    global active_pairs, all_pairs
+    tags = get_all_tags()  # Ensure this function fetches tags
+    selected_tag = request.args.getlist('tags')
+    meanings, words, word_dict = get_game_data(selected_tag)  # Modify logic to apply filtering
     data = request.get_json()
     matched_word = data.get("matched_word")
 
     # Fetch updated words from database
     meanings, words, word_dict = get_game_data()
 
-    print("Before deletion:", word_dict)  # Debugging
-    print("Matched word to remove:", matched_word)  # Debugging
+    print(f"🔹 Matched word received: {matched_word}")  # Debugging
 
-    # Find the word key to remove (if user clicked the meaning)
-    key_to_remove = None
-    for word, meaning in word_dict.items():
-        if meaning == matched_word or word == matched_word:
-            key_to_remove = word
-            break
+    before_removal = list(active_pairs)  # Before state
+    active_pairs = [pair for pair in active_pairs if
+                    pair[0] != matched_word and pair[1] != matched_word]  # Remove matched pair
 
-    # Remove matched pair if it exists
-    if key_to_remove:
-        del word_dict[key_to_remove]
-        print(f"{key_to_remove} removed.")  # Debugging
-    else:
-        print(f"{matched_word} not found in word_dict.")  # Debugging
+    print(f"✅ Before removal: {before_removal}")
+    print(f"✅ After removal: {active_pairs}")
 
-    # Save the updated dictionary back to database (if needed)
-    _game_data(word_dict)  # <-- Make sure to update your database here
+    # Add new pair if available
+    if all_pairs:
+        new_pair = all_pairs.pop(0)
+        active_pairs.append(new_pair)
+        print(f"✅ Added new pair: {new_pair}")
+        print(f"✅ Updated active pairs: {active_pairs}")
 
-    # Fetch updated data again after deletion
-    meanings, words, word_dict = get_game_data()
+    # 🔥 Ensure active_pairs contains max 5 pairs only
+    active_pairs = active_pairs[:5]
 
-    # Select a new set of 5 pairs
-    updated_pairs = list(word_dict.items())
-
-    if updated_pairs:
-        selected_pairs = random.sample(updated_pairs, min(5, len(updated_pairs)))
-        words = [pair[0] for pair in selected_pairs]
-        meanings = [pair[1] for pair in selected_pairs]
-    else:
-        words, meanings = [], []  # No words left
-
-    print("After deletion:", word_dict)  # Debugging
-
-    return jsonify({"words": words, "meanings": meanings})
+    return jsonify(new_pairs=active_pairs)
 
 
 @app.route("/quiz")
