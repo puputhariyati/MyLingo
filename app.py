@@ -420,38 +420,45 @@ def get_game_data(selected_tags=None):
     return meanings, words, word_dict
 
 
-@app.route("/update_pairs", methods=["POST"])
-def update_pairs():
+@app.route("/update_pair", methods=["POST"])
+def update_pair():
     global active_pairs, all_pairs
     tags = get_all_tags()  # Ensure this function fetches tags
     selected_tag = request.args.getlist('tags')
     meanings, words, word_dict = get_game_data(selected_tag)  # Modify logic to apply filtering
+
     data = request.get_json()
-    matched_word = data.get("matched_word")
+    matched_word = data.get("matchedWord")
+    print(f"🔥 Received match request: {matched_word}")
+    print(f"🔍 Active pairs before update: {active_pairs}")
 
-    # Fetch updated words from database
-    meanings, words, word_dict = get_game_data()
+    # Find the matched pair
+    matched_pair = None
+    for pair in active_pairs:
+        if matched_word in pair:  # Check both elements in the tuple
+            matched_pair = pair
+            break
 
-    print(f"🔹 Matched word received: {matched_word}")  # Debugging
+    if matched_pair:
+        active_pairs.remove(matched_pair)
+        print(f"✅ Removed pair: {matched_pair}")
 
-    before_removal = list(active_pairs)  # Before state
-    active_pairs = [pair for pair in active_pairs if
-                    pair[0] != matched_word and pair[1] != matched_word]  # Remove matched pair
-
-    print(f"✅ Before removal: {before_removal}")
-    print(f"✅ After removal: {active_pairs}")
-
-    # Add new pair if available
+    # **REPLACE the removed pair with a new one**
     if all_pairs:
         new_pair = all_pairs.pop(0)
         active_pairs.append(new_pair)
-        print(f"✅ Added new pair: {new_pair}")
-        print(f"✅ Updated active pairs: {active_pairs}")
+        print(f"🚀 Added new pair: {new_pair}")
+    else:
+        print("⚠️ No more pairs available in all_pairs!")
 
-    # 🔥 Ensure active_pairs contains max 5 pairs only
-    active_pairs = active_pairs[:5]
-
-    return jsonify(new_pairs=active_pairs)
+    return jsonify(success=True,
+                   new_pair=active_pairs,
+                   tags=tags,
+                   selected_tag=selected_tag,
+                   meanings=meanings,
+                   words=words,
+                   word_dict=word_dict
+                   )
 
 
 @app.route("/quiz")

@@ -84,9 +84,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     firstSelection.classList.add("selected");
                     console.log("First selected:", firstSelection.dataset.value);
                     matchTimeout = setTimeout(() => {
-                        resetSelection();
+//                        resetSelection();
                     }, 3000);
-                } else {  // Ensure second selection is a different button
+                } else if (firstSelection !== this){  // Ensure second selection is a different button
                     console.log("Second selected:", this.dataset.value);
 
                     // ✅ Ensure firstSelection exists before accessing dataset
@@ -113,9 +113,13 @@ document.addEventListener("DOMContentLoaded", function () {
                             if (this) {
                                 this.parentNode.removeChild(this); // Alternative removal ✅
                             }
+
+                            updatePair(firstSelectionStored ? firstSelectionStored.innerText : ""); // Handle potential null
+
                             // ✅ Reset firstSelection properly AFTER removing elements
                             firstSelection = null;
-                        }, 3000);
+
+                        }, 1000);
                     } else {
                         firstSelection.classList.add("wrong");
                         this.classList.add("wrong");
@@ -136,55 +140,57 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".selected").forEach(btn => btn.classList.remove("selected"));
     }
 
-    function updatePairs(matchedWord) {
-        console.log("Updating pairs for:", matchedWord);
-        fetch('/update_pairs', {
+    function updatePair(matchedWord) {
+        console.log("Updating pair for:", matchedWord);
+        fetch('/update_pair', {
             method: 'POST',
-            body: JSON.stringify({ word: matchedWord }),
+            body: JSON.stringify({ word: matchedWord }),  // Fix the key here
             headers: { "Content-Type": "application/json" }
         })
         .then(response => response.json())
         .then(data => {
-            console.log("New pairs received:", data.new_pairs);
+            console.log("New pairs received:", data.new_pair);
 
+            // Remove only the matched buttons
             document.querySelectorAll(".match-btn").forEach(btn => {
                 if (btn.dataset.value === matchedWord) {
                     btn.remove();
                 }
             });
-            refreshUI(data.new_pairs);
+
+            // Only update UI with new pair (instead of replacing everything)
+            if (data.new_pair.length > 0) {
+                addNewPairToUI(data.new_pair[data.new_pair.length - 1]);  // Add the last new pair
+            }
         })
         .catch(error => console.error("Error updating pairs:", error));
     }
 
-    function refreshUI(newPairs) {
+    // ✅ Function to add new pairs dynamically without resetting the whole UI
+    function addNewPairToUI(pair) {
         const meaningsDiv = document.getElementById("meanings");
         const wordsDiv = document.getElementById("words");
 
-        meaningsDiv.innerHTML = "";
-        wordsDiv.innerHTML = "";
+        let meaningBtn = document.createElement("button");
+        meaningBtn.classList.add("match-btn");
+        meaningBtn.dataset.type = "meaning";
+        meaningBtn.dataset.value = pair[1];
+        meaningBtn.dataset.lang = "en-US";
+        meaningBtn.innerText = pair[1];
 
-        newPairs.forEach(pair => {
-            let meaningBtn = document.createElement("button");
-            meaningBtn.classList.add("match-btn");
-            meaningBtn.dataset.type = "meaning";
-            meaningBtn.dataset.value = pair[1];
-            meaningBtn.dataset.lang = "en-US"; // English meanings
-            meaningBtn.innerText = pair[1];
+        let wordBtn = document.createElement("button");
+        wordBtn.classList.add("match-btn");
+        wordBtn.dataset.type = "word";
+        wordBtn.dataset.value = pair[1];  // Fix the dataset value
+        wordBtn.dataset.lang = "fr-FR";
+        wordBtn.innerText = pair[0];
 
-            let wordBtn = document.createElement("button");
-            wordBtn.classList.add("match-btn");
-            wordBtn.dataset.type = "word";
-            wordBtn.dataset.value = pair[1];
-            wordBtn.dataset.lang = "fr-FR"; // French words
-            wordBtn.innerText = pair[0];
+        meaningsDiv.appendChild(meaningBtn);
+        wordsDiv.appendChild(wordBtn);
 
-            meaningsDiv.appendChild(meaningBtn);
-            wordsDiv.appendChild(wordBtn);
-        });
-
-        attachClickEvents(); // Re-attach event listeners to new buttons
+        attachClickEvents();  // Re-attach events
     }
+
 
     attachClickEvents();
 });
