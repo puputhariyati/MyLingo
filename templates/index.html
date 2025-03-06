@@ -13,7 +13,7 @@
     <div id="login-container">
         {% if current_user.is_authenticated %}
             <p>Welcome, {{ current_user.username }}!</p>
-            <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+            <a href="{{ url_for('logout') }}"><button id="logout-btn">Logout</button></a>
         {% else %}
             <button id="login-button">Login</button>
         {% endif %}
@@ -29,7 +29,7 @@
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
 
-            <button type="submit">Submit</button>
+            <button id="submit-login" type="submit">Submit</button>
         </form>
 
         <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
