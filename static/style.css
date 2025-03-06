@@ -74,7 +74,6 @@ button {
 }
 
 /*Logout style*/
-
 #logout-btn {
     background: #dc3545;
     color: white;
@@ -198,4 +197,29 @@ input[type="checkbox"] {
     left: 50%;
     transform: translateX(-50%); /* Center it horizontally */
     margin-top: 5px; /* Small gap from the button */
+}
+
+/*Signup style*/
+
+h2, p {
+    text-align: center;
+}
+
+#signup-button {
+    background-color: #9DC08B;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#signup-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+    margin: 0;
+    text-align: center;
+    flex-direction: column;
 }
