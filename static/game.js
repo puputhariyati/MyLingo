@@ -140,6 +140,15 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".selected").forEach(btn => btn.classList.remove("selected"));
     }
 
+    let Pairs = [];  // Ensure this is defined globally
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
     function updatePair(matchedWord) {
         console.log("Updating pair for:", matchedWord);
         fetch('/update_pair', {
@@ -162,6 +171,8 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.new_pair.length > 0) {
                 addNewPairToUI(data.new_pair[data.new_pair.length - 1]);  // Add the last new pair
             }
+            // Shuffle the word list after updating
+            shuffleArray(Pairs);
         })
         .catch(error => console.error("Error updating pairs:", error));
     }
@@ -189,8 +200,17 @@ document.addEventListener("DOMContentLoaded", function () {
         wordsDiv.appendChild(wordBtn);
 
         attachClickEvents();  // Re-attach events
+
+        // ✅ Shuffle buttons after adding
+        shuffleElements(meaningsDiv);
+        shuffleElements(wordsDiv);
     }
 
+    function shuffleElements(parent) {
+        let elements = Array.from(parent.children);
+        elements.sort(() => Math.random() - 0.5);
+        elements.forEach(el => parent.appendChild(el));
+    }
 
     attachClickEvents();
 });
