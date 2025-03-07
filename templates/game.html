@@ -21,6 +21,9 @@
                             <input type="checkbox" name="tags" value="{{ tag }}"
                                 {% if tag in selected_tag %}checked{% endif %}>
                             {{ tag }}
+                            <span id="count-{{ tag|replace(' ', '-') }}" class="tag-count">
+                                ({{ tag_count.get(tag, 0) }})
+                            </span> <!-- ✅ Dynamically show count -->
                         </td>
                     {% endfor %}
                 </tr>

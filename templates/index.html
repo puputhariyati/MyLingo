@@ -83,6 +83,7 @@
 
         <button class="main-btn" id="filterButton" type="button">Filter by Tag</button>
         <div id="tagFilterBox" style="display: none;">
+            <div id="total-tags" style="font-weight: bold; margin-bottom: 10px;"></div> <!-- Display total tags -->
             <form method="GET">
                 <table>
                     <tr>
@@ -94,6 +95,9 @@
                                 <input type="checkbox" name="tags" value="{{ tag }}"
                                     {% if tag in selected_tag %}checked{% endif %}>
                                 {{ tag }}
+                                <span id="count-{{ tag|replace(' ', '-') }}" class="tag-count">
+                                    ({{ tag_count.get(tag, 0) }})
+                                </span> <!-- ✅ Dynamically show count -->
                             </td>
                         {% endfor %}
                     </tr>
@@ -112,6 +116,9 @@
                     <br> Example: {{ word["example"] }}
                     <br> Translation: {{ word["translation"] }}
                     <br>
+
+                    <!-- Debugging: Display the tags as text -->
+<!--                    <small>Tags: {{ word['tags'] }}</small>-->
 
                     {% if word['tags'] %}
                         {% for tag in word['tags'].split(',') %}

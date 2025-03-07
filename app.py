@@ -177,11 +177,16 @@ def index():
     # Fetch unique tags
     cursor.execute("SELECT tags FROM vocabulary")
     all_tags = cursor.fetchall()
+
+    tag_count = {}  # Dictionary to store tag counts
     tag_set = set()
+
     for row in all_tags:
         if row["tags"]:
             tag_list = [tag.strip() for tag in row["tags"].split(",") if tag.strip()]
-            tag_set.update(tag_list)
+            for tag in tag_list:
+                tag_set.add(tag)
+                tag_count[tag] = tag_count.get(tag, 0) + 1  # Count occurrences
 
     db.close()
 
@@ -189,6 +194,7 @@ def index():
         'index.html',
         words=words,
         tags=sorted(tag_set),  # ✅ Ensure tag_set is defined
+        tag_count=tag_count,
         selected_alphabet=selected_alphabet,
         selected_tags=selected_tags,
         selected_sort=selected_sort,
@@ -351,9 +357,25 @@ active_pairs = []  # Start empty, will fill dynamically
 
 @app.route('/game')  # Register the route
 def game():
-    tags = get_all_tags()  # Ensure this function fetches tags
-    selected_tag = request.args.getlist('tags')
+    db = get_db()
+    cursor = db.cursor()
+
+    tags = get_all_tags()  # Get all available tags
+    selected_tag = request.args.getlist('tags')# Get selected tags from request
     meanings, words, word_dict = get_game_data(selected_tag)  # Modify logic to apply filtering
+
+    # Fetch words filtered by selected tags
+    if selected_tag:
+        tag_conditions = " OR ".join(f"tags LIKE '%{tag}%'" for tag in selected_tag)
+        query = f"SELECT word, meaning, tags FROM vocabulary WHERE {tag_conditions}"
+    else:
+        query = "SELECT word, meaning, tags FROM vocabulary"  # Fetch all if no filter is applied
+
+    cursor.execute(query)
+    all_tags = cursor.fetchall()
+
+    tag_count = {}  # Dictionary to store tag counts
+    tag_set = set()
 
     # Ensure exactly 5 pairs are selected
     selected_pairs = random.sample(list(word_dict.items()), min(5, len(word_dict)))
@@ -366,12 +388,20 @@ def game():
     random.shuffle(words)
     random.shuffle(meanings)
 
+    for row in all_tags:
+        if row["tags"]:
+            tag_list = [tag.strip() for tag in row["tags"].split(",") if tag.strip()]
+            for tag in tag_list:
+                tag_set.add(tag)
+                tag_count[tag] = tag_count.get(tag, 0) + 1  # Count occurrences
+
     return render_template('game.html',
                            tags=tags,
                            selected_tag=selected_tag,
                            meanings=meanings,
                            words=words,
-                           word_dict=word_dict)
+                           word_dict=word_dict,
+                           tag_count=tag_count)
 
 
 @app.route('/get_all_tags')  # Fix incorrect route
@@ -385,6 +415,7 @@ def get_all_tags():
     conn.close()
 
     tag_set = set()
+
     for row in all_tags:
         if row["tags"]:
             tag_list = [tag.strip() for tag in row["tags"].split(",") if tag.strip()]
@@ -463,7 +494,41 @@ def update_pair():
 
 @app.route("/quiz")
 def quiz():
-    return render_template("quiz.html")
+    db = get_db()
+    cursor = db.cursor()
+
+    tags = get_all_tags()  # Get all available tags
+    selected_tag = request.args.getlist('tags')# Get selected tags from request
+    meanings, words, word_dict = get_game_data(selected_tag)  # Modify logic to apply filtering
+
+    # Fetch words filtered by selected tags
+    if selected_tag:
+        tag_conditions = " OR ".join(f"tags LIKE '%{tag}%'" for tag in selected_tag)
+        query = f"SELECT word, meaning, tags FROM vocabulary WHERE {tag_conditions}"
+    else:
+        query = "SELECT word, meaning, tags FROM vocabulary"  # Fetch all if no filter is applied
+
+    cursor.execute(query)
+    all_tags = cursor.fetchall()
+
+    tag_count = {}  # Dictionary to store tag counts
+    tag_set = set()
+
+    for row in all_tags:
+        if row["tags"]:
+            tag_list = [tag.strip() for tag in row["tags"].split(",") if tag.strip()]
+            for tag in tag_list:
+                tag_set.add(tag)
+                tag_count[tag] = tag_count.get(tag, 0) + 1  # Count occurrences
+
+    return render_template('quiz.html',
+                           tags=tags,
+                           selected_tag=selected_tag,
+                           meanings=meanings,
+                           words=words,
+                           word_dict=word_dict,
+                           tag_count=tag_count
+                           )
 
 
 # Function to get a random word from the database

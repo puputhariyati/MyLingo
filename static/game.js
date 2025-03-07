@@ -4,11 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById("filterButton").addEventListener("click", function() {
         let tagBox = document.getElementById("tagFilterBox");
-        if (tagBox.style.display === "none" || tagBox.style.display === "") {
-            tagBox.style.display = "block";
-        } else {
-            tagBox.style.display = "none";
-        }
+        tagBox.style.display = (tagBox.style.display === "none" || tagBox.style.display === "") ? "block" : "none";
     });
 
     document.querySelectorAll('.tag').forEach(tag => {
@@ -39,6 +35,42 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .catch(error => console.error("Error fetching words:", error));
     });
+
+    // Function to count total tags dynamically
+    function updateTagCounts() {
+        let tags = document.querySelectorAll(".tag-filter"); // Select all checkboxes
+        document.getElementById("total-tags").innerText = `Total Tags: ${tags.length}`;
+
+        let tagCounts = {}; // Object to store tag-word count
+
+        // Loop through all word items
+        document.querySelectorAll(".word-item").forEach(wordItem => {
+            let wordTags = wordItem.dataset.tags ? wordItem.dataset.tags.split(',') : [];
+
+            wordTags.forEach(tag => {
+                let trimmedTag = tag.trim();
+                if (trimmedTag) {
+                    tagCounts[trimmedTag] = (tagCounts[trimmedTag] || 0) + 1;
+                }
+            });
+        });
+
+        // Update each tag count
+        tags.forEach(tag => {
+            let tagName = tag.value;
+            let countSpan = document.getElementById(`count-${tagName.replace(/\s+/g, '-')}`);
+            let wordCount = tagCounts[tagName] || 0;
+
+            if (countSpan) {
+                countSpan.innerText = `(${wordCount})`;
+            }
+        });
+    }
+
+    // Run on page load
+    document.addEventListener("DOMContentLoaded", updateTagCounts);
+
+
 
 
 //    function speakText(text, lang = "en-US") {

@@ -54,6 +54,50 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Update counts when a tag is selected/deselected
+    document.querySelectorAll('.tag-filter').forEach(tag => {
+        tag.addEventListener('change', function () {
+            updateTagCounts();
+        });
+    });
+
+    document.querySelectorAll(".word-item").forEach(el => console.log(el.dataset.tags));
+
+    function updateTagCounts() {
+        let tagCounts = {}; // Store tag-word count
+
+        // Loop through word items and extract tags
+        document.querySelectorAll(".word-item").forEach(wordItem => {
+            let wordTags = wordItem.dataset.tags ? wordItem.dataset.tags.split(',') : [];
+
+            console.log("Word Tags Found: ", wordTags); // Debugging
+
+            wordTags.forEach(tag => {
+                let trimmedTag = tag.trim();
+                if (trimmedTag.length > 0) {
+                    tagCounts[trimmedTag] = (tagCounts[trimmedTag] || 0) + 1;
+                }
+            });
+        });
+
+        console.log("Final Tag Counts:", tagCounts); // Debugging
+
+        // Update each tag count in the UI
+        document.querySelectorAll(".tag-filter").forEach(tag => {
+            let tagName = tag.value.trim();
+            let countSpan = document.getElementById(`count-${tagName.replace(/\s+/g, '-')}`);
+            let wordCount = tagCounts[tagName] || 0;
+
+            if (countSpan) {
+                countSpan.innerText = `(${wordCount})`;
+            }
+        });
+    }
+
+    // Run on page load
+    document.addEventListener("DOMContentLoaded", updateTagCounts);
+
+
     document.getElementById("filterButton").addEventListener("click", function() {
         let tagBox = document.getElementById("tagFilterBox");
         if (tagBox.style.display === "none" || tagBox.style.display === "") {
