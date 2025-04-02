@@ -37,13 +37,17 @@
     </div>
 
     <div class="quiz-box">
-        <p id="question"></p>
+        <p id="question">every day</p>
+        <p><strong>Hint:</strong> <span id="tag-hint"></span></p>
+        <p id="word-display"></p>  <!-- Hangman-style answer display -->
+
         <form id="quiz-form">
-            <input type="text" id="answer" placeholder="Type your answer"data-correct-answer="">
+            <label for="letter-input">Guess a letter:</label>
+            <input type="text" id="letter-input" maxlength="1">
             <button type="submit">Submit</button>
         </form>
+
         <p id="feedback"></p>
-        <br><br>
     </div>
 
     <h3 id="score">Score: 0</h3>

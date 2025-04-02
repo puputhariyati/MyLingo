@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     document.getElementById("question").innerText = "No questions available.";
                 } else {
                     document.getElementById("question").innerText = `${data.question}`; //make meaning & translation questions
-                    document.getElementById("answer").dataset.correctAnswer = data.correct_answer_normalized;
+                    document.getElementById("letter-input").dataset.correctAnswer = data.correct_answer_normalized;
                     wrongAttempts = 0; // Reset wrong attempts
                 }
             })
@@ -122,6 +122,36 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        let answer = "tous les jours"; // Example answer
+        let guessedLetters = new Set();
+        let displayWord = answer.split("").map(char => (char === " " ? " " : "_")).join(" ");
+
+        document.getElementById("word-display").textContent = displayWord;
+
+        document.getElementById("quiz-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let input = document.getElementById("letter-input");
+            let letter = input.value.toLowerCase();
+
+            if (letter && !guessedLetters.has(letter)) {
+                guessedLetters.add(letter);
+            }
+
+            let updatedDisplay = answer.split("").map(char =>
+                guessedLetters.has(char) || char === " " ? char : "_"
+            ).join(" ");
+
+            document.getElementById("word-display").textContent = updatedDisplay;
+
+            if (!updatedDisplay.includes("_")) {
+                document.getElementById("feedback").textContent = "You guessed the phrase!";
+            }
+
+            input.value = "";
+        });
+    });
 
     let score = 0;
     let highScore = localStorage.getItem("highScore") || 0; // Retrieve stored high score

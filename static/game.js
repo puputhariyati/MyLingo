@@ -181,6 +181,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function filterWords() {
+        document.querySelectorAll(".match-btn").forEach(btn => {
+            let wordTags = btn.dataset.tags ? btn.dataset.tags.split(',') : [];
+            let hasMatchingTag = wordTags.some(tag => selectedTags.includes(tag.trim()));
+
+            // Show or hide words based on selected filters
+            btn.style.display = hasMatchingTag || selectedTags.length === 0 ? "block" : "none";
+        });
+    }
+
     function updatePair(matchedWord) {
         console.log("Updating pair for:", matchedWord);
         fetch('/update_pair', {
@@ -202,6 +212,8 @@ document.addEventListener("DOMContentLoaded", function () {
             // Only update UI with new pair (instead of replacing everything)
             if (data.new_pair.length > 0) {
                 addNewPairToUI(data.new_pair[data.new_pair.length - 1]);  // Add the last new pair
+                // Apply the tag filter to the newly added pair
+                filterWords();
             }
             // Shuffle the word list after updating
             shuffleArray(Pairs);

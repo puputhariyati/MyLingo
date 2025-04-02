@@ -17,10 +17,12 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -51,6 +53,7 @@ def signup():
 
     return render_template('signup.html')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -70,6 +73,7 @@ def login():
 @login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user)
+
 
 @app.route('/logout')
 @login_required
