@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Words Table</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='words_table.css') }}">
+</head>
+<body>
+    <h1>Words Table</h1>
+    <!-- Filters and Sorting Form -->
+    <form method="GET" action="/words_table" style="margin-bottom: 20px;">
+
+        <label for="alphabet-filter">Alphabet:</label>
+        <select name="alphabet" id="alphabet-filter" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+                <option value="{{ letter }}" {% if selected_letter == letter %}selected{% endif %}>{{ letter }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="sort-filter">Sort by:</label>
+        <select name="sort" id="sort-filter" onchange="this.form.submit()">
+            <option value="newest" {% if selected_sort == "newest" %}selected{% endif %}>Newest</option>
+            <option value="oldest" {% if selected_sort == "oldest" %}selected{% endif %}>Oldest</option>
+            <option value="alphabet" {% if selected_sort == "alphabet" %}selected{% endif %}>Alphabetical</option>
+        </select>
+
+        <button class="main-btn" id="filterButton" type="button">Filter by Tag</button>
+        <div id="tagFilterBox" style="display: none;">
+            <div id="total-tags" style="font-weight: bold; margin-bottom: 10px;"></div> <!-- Display total tags -->
+            <form method="GET">
+                <table>
+                    <tr>
+                        {% for tag in tags %}
+                            {% if loop.index0 % 2 == 0 %} <!-- Start a new row every 2 items -->
+                                </tr><tr>
+                            {% endif %}
+                            <td>
+                                <input type="checkbox" name="tags" value="{{ tag }}"
+                                    {% if tag in selected_tag %}checked{% endif %}>
+                                {{ tag }}
+                                <span id="count-{{ tag|replace(' ', '-') }}" class="tag-count">
+                                    ({{ tag_count.get(tag, 0) }})
+                                </span> <!-- ✅ Dynamically show count -->
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </table>
+                <button class="main-btn" type="submit">Apply Filters</button>
+            </form>
+        </div>
+
+    </form>
+
+    <!-- Print Button -->
+    <button onclick="window.print()">Print to PDF</button>
+
+    <!-- Words Table -->
+    <table id="wordsTable">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Word</th>
+                <th>Meaning</th>
+                <th>Example Sentence</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for word in words_table[:10] %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ word.word }}</td>
+                <td>{{ word.meaning }}</td>
+                <td>{{ word.example }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div>
+        {% if page > 1 %}
+            <a href="?page={{ page - 1 }}">Previous</a>
+        {% endif %}
+        Page {{ page }} of {{ total_pages }}
+        {% if page < total_pages %}
+            <a href="?page={{ page + 1 }}">Next</a>
+        {% endif %}
+    </div>
+
+    <!-- Home Button at Bottom -->
+    <div class="home-container">
+        <a href="/" class="home-btn">Home</a>
+    </div>
+
+    <!-- Load external JavaScript -->
+    <script src="{{ url_for('static', filename='words_table.js') }}"></script>
+</body>
+</html>

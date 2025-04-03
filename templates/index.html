@@ -54,13 +54,15 @@
         </form><br>
     {% endif %}
 
+
+<!--    Other pages links-->
     <div class="center-container">
         <a href="{{ url_for('game') }}">
             <button class="main-btn">Match the Words</button></a>
-
         <a href="{{ url_for('quiz') }}">
-            <button class="main-btn">Language Quiz</button>
-        </a>
+            <button class="main-btn">Language Quiz</button></a>
+        <a href="{{ url_for('words_table') }}">
+            <button class="main-btn">Words Table</button></a>
     </div>
 
     <!-- Filters and Sorting Form -->
@@ -217,8 +219,6 @@
             <a href="?page={{ page+1 }}&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">Next</a>
         {% endif %}
     </div>
-
-
 
     <!-- Load external JavaScript -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>

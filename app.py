@@ -602,6 +602,96 @@ def check_answer():
     return jsonify({"correct": user_answer_normalized == correct_answer_normalized})
 
 
+def get_words_table():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    # get data from db
+    cursor.execute("SELECT word, meaning, example FROM vocabulary LIMIT 10")
+    words = [{"word": row[0], "meaning": row[1], "example": row[2]} for row in cursor.fetchall()]
+
+    conn.close()
+    return words
+
+
+@app.route('/words_table')
+def words_table():
+    db = get_db()
+    cursor = db.cursor()
+    # words = get_words_table()
+
+    # Get filters from request args
+    selected_alphabet = request.args.get("alphabet", "")
+    selected_tags = request.args.getlist("tags")
+    selected_sort = request.args.get("sort", "newest")
+    page = int(request.args.get("page", 1))  # Default to page 1
+    words_per_page = 10  # Limit words per page
+
+    # Fetch collected words (Modify query to match the words you want)
+    query = "SELECT * FROM vocabulary"
+    conditions = []
+
+    # Apply filters
+    if selected_alphabet:
+        conditions.append(f"word LIKE '{selected_alphabet}%'")
+
+    if selected_tags:
+        tag_conditions = " AND ".join(f"tags LIKE '%{tag}%'" for tag in selected_tags)
+        conditions.append(f"({tag_conditions})")
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    # Apply sorting
+    if selected_sort == "oldest":
+        query += " ORDER BY id ASC"
+    elif selected_sort == "alphabet":
+        query += " ORDER BY word ASC"
+    else:  # Default: newest
+        query += " ORDER BY id DESC"
+
+    # Count total words
+    cursor.execute(query)
+    total_words = len(cursor.fetchall())
+
+    # Apply pagination
+    offset = (page - 1) * words_per_page
+    query += f" LIMIT {words_per_page} OFFSET {offset}"
+    cursor.execute(query)
+    words = cursor.fetchall()
+
+    # Pagination variables
+    total_pages = math.ceil(total_words / words_per_page)
+
+    # Fetch unique tags
+    cursor.execute("SELECT tags FROM vocabulary")
+    all_tags = cursor.fetchall()
+
+    tag_count = {}  # Dictionary to store tag counts
+    tag_set = set()
+
+    for row in all_tags:
+        if row["tags"]:
+            tag_list = [tag.strip() for tag in row["tags"].split(",") if tag.strip()]
+            for tag in tag_list:
+                tag_set.add(tag)
+                tag_count[tag] = tag_count.get(tag, 0) + 1  # Count occurrences
+
+    db.close()
+
+    return render_template(
+        'words_table.html',
+        words_table=words,
+        tags=sorted(tag_set),
+        tag_count=tag_count,
+        selected_alphabet=selected_alphabet,
+        selected_tags=selected_tags,
+        selected_sort=selected_sort,
+        page=page,
+        total_pages=total_pages
+    )
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
