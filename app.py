@@ -608,7 +608,7 @@ def get_words_table():
 
     # get data from db
     cursor.execute("SELECT word, meaning, example FROM vocabulary LIMIT 10")
-    words = [{"word": row[0], "meaning": row[1], "example": row[2]} for row in cursor.fetchall()]
+    words = [{"word": row[0], "meaning": row[1], "example": row[2], "translation": row[3]} for row in cursor.fetchall()]
 
     conn.close()
     return words
