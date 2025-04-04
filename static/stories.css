@@ -1,0 +1,87 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f5ee;
+}
+
+.storybook-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    gap: 0.3px;
+    overflow: hidden;
+    position: relative;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+.left-page, .right-page {
+    width: 40%;
+    height: 90%;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative; /*make the button inside the page*/
+    transition: transform 0.6s ease;
+    backface-visibility: hidden;
+}
+
+.left-page img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+.right-page ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.right-page ul li {
+    padding: 5px 0;
+    cursor: pointer;
+    color: #333;
+    text-decoration: underline;
+}
+
+.right-page p {
+    line-height: 1.6;
+}
+
+#next-button, #back-button {
+    background-color: #d39b6d;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    position: absolute;
+    bottom: 20px;
+}
+
+#next-button {
+    right: 20px;
+}
+
+#back-button {
+    left: 20px;
+    display: none; /*to hide on the content page*/
+}
+
+#next-button:hover, #back-button:hover {
+    background-color: #b57f55;
+}
+
+.story-text {
+    font-size: 16px;
+    margin-top: 15px;
+}

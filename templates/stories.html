@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories & Articles</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stories.css') }}">
+</head>
+<body>
+    <div class="storybook-container" id="storybook">
+        <!-- Left Page -->
+        <div class="left-page">
+            <img id="story-image" src="/static/images/the_grumpy_fisherman.png" alt="Cover Image" />
+            <p id="story-text-left" class="story-text"></p>
+        </div>
+
+        <!-- Right Page -->
+        <div class="right-page">
+            <div id="story-list-container">
+              <h2>Content</h2>
+              <ul id="story-list">
+                  <li>The Grumpy Fisherman</li>
+
+              </ul>
+            </div>
+            <p id="story-text-right" class="story-text" style="display: none;"></p>
+            <button id="back-button" onclick="goToPreviousPage()">← Back</button>
+            <button id="next-button" onclick="goToNextPage()">Next →</button>
+        </div>
+
+        <!-- Home Button at Bottom -->
+        <div class="home-container">
+            <a href="/" class="home-btn">Home</a>
+        </div>
+    </div>
+
+    <!-- Load external JavaScript -->
+    <script src="{{ url_for('static', filename='stories.js') }}"></script>
+</body>
+</html>
