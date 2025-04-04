@@ -7,31 +7,34 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stories.css') }}">
 </head>
 <body>
+
+    <!-- Home Button-->
+    <div class="home-container">
+        <a href="/" class="home-btn">Home</a>
+    </div>
+
     <div class="storybook-container" id="storybook">
         <!-- Left Page -->
-        <div class="left-page">
-            <img id="story-image" src="/static/images/the_grumpy_fisherman.png" alt="Cover Image" />
-            <p id="story-text-left" class="story-text"></p>
+        <div class="left-page-cover">
+          <div class="story-overlay">
+            <p id="story-text-left">
+                Discover languages through stories. <br>
+                Learn gently, enjoy deeply. <br>
+                For curious hearts of every age.
+            </p>
+          </div>
+            <button id="back-button-cover" onclick="goToPreviousPage()">← Back</button>
         </div>
 
         <!-- Right Page -->
-        <div class="right-page">
-            <div id="story-list-container">
-              <h2>Content</h2>
-              <ul id="story-list">
-                  <li>The Grumpy Fisherman</li>
-
-              </ul>
-            </div>
-            <p id="story-text-right" class="story-text" style="display: none;"></p>
-            <button id="back-button" onclick="goToPreviousPage()">← Back</button>
+        <div class="right-page-cover">
+            <h2>Content</h2>
+            <ul id="story-list">
+                <li onclick="startStory(0)">The Grumpy Fisherman</li>
+            </ul>
             <button id="next-button" onclick="goToNextPage()">Next →</button>
         </div>
 
-        <!-- Home Button at Bottom -->
-        <div class="home-container">
-            <a href="/" class="home-btn">Home</a>
-        </div>
     </div>
 
     <!-- Load external JavaScript -->

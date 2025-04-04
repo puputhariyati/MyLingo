@@ -16,7 +16,8 @@ let currentPageIndex = 0;
 
 // DOM elements
 const storyImageEl = document.getElementById("story-image");
-const storyTextEl = document.getElementById("story-text");
+const storyTextLeft = document.getElementById("story-text-left");
+const storyTextRight = document.getElementById("story-text-right");
 const storyListContainer = document.getElementById("story-list-container");
 const storyListEl = document.getElementById("story-list");
 const storyParagraph = document.getElementById("story-paragraph");
@@ -39,30 +40,27 @@ function startStory(index) {
   currentStoryIndex = index;
   currentPageIndex = 0;
   storyListContainer.style.display = "none";
-  storyParagraph.style.display = "block";
-  updatePage();
+  storyParagraph.style.display = "flex";
+  updatePages();
 }
 
-// Updates both left and right page with current and next page
+// Updates both left and right page
 function updatePages() {
   const story = stories[currentStoryIndex];
-
   const leftPage = story.pages[currentPageIndex];
   const rightPage = story.pages[currentPageIndex + 1];
 
-  // Set image for left page (page 1)
   storyImageEl.src = leftPage?.image || "";
   storyTextLeft.textContent = leftPage?.text || "";
-
-  // Set text/image for right page (page 2)
   storyTextRight.textContent = rightPage?.text || "";
 
-  // Buttons
+  // Show/hide buttons
   backButton.style.display = currentPageIndex > 0 ? "block" : "none";
-  nextButton.textContent = currentPageIndex + 2 >= story.pages.length ? "↺ Restart" : "Next →";
+  nextButton.textContent =
+    currentPageIndex + 2 >= story.pages.length ? "↺ Restart" : "Next →";
 }
 
-// Go to next page
+// Next
 function goToNextPage() {
   if (currentStoryIndex === null) {
     startStory(0); // Start first story
@@ -70,13 +68,12 @@ function goToNextPage() {
   }
 
   const story = stories[currentStoryIndex];
-
-  if (currentPageIndex + 2 < story.pages.length) {
-    currentPageIndex += 2;
+  if (currentPageIndex + 1 < story.pages.length) {
+    currentPageIndex += 1;
     flipBookAnimation();
     updatePages();
   } else {
-    // Restart to landing page
+    // Back to story list
     currentStoryIndex = null;
     currentPageIndex = 0;
     storyImageEl.src = "/static/images/the_grumpy_fisherman.png";
@@ -84,21 +81,22 @@ function goToNextPage() {
     storyTextRight.textContent = "";
     storyTextRight.style.display = "none";
     storyListContainer.style.display = "block";
+    storyParagraph.style.display = "none";
     backButton.style.display = "none";
     nextButton.textContent = "Next →";
   }
 }
 
-// Go to previous page
+// Previous
 function goToPreviousPage() {
   if (currentPageIndex >= 2) {
     currentPageIndex -= 2;
     flipBookAnimation();
-    updatePage();
+    updatePages();
   }
 }
 
-// Adds flip animation
+// Flip animation
 function flipBookAnimation() {
   document.querySelector(".left-page").style.transform = "rotateY(-5deg)";
   document.querySelector(".right-page").style.transform = "rotateY(5deg)";
@@ -108,5 +106,5 @@ function flipBookAnimation() {
   }, 400);
 }
 
-// Initialize (Init)
+// Initialize
 populateStoryList();

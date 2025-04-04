@@ -1,60 +1,90 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f8f5ee;
+body, html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrollbars */
+  height: 100%;
+}
+
+.home-container {
+    text-align: left;  /* Centers the button */
+    margin: 10px 0px 0px 10px;    /* Adds space between game and button */
+}
+
+.home-btn {
+    display: inline-block;
+    padding: 8px 15px;
+    font-size: 16px;
+    background-color: #9DC08B; /* Matches selected color */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.home-btn:hover {
+    background-color: #7A9B74; /* Slightly darker on hover */
 }
 
 .storybook-container {
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    gap: 0.3px;
-    overflow: hidden;
-    position: relative;
-    padding: 40px;
+    height: 90vh;
+    gap: 0px;
     box-sizing: border-box;
+    padding: 10px;
 }
 
-.left-page, .right-page {
-    width: 40%;
-    height: 90%;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative; /*make the button inside the page*/
-    transition: transform 0.6s ease;
-    backface-visibility: hidden;
+/*left page*/
+.left-page-cover {
+  width: 42%;
+  height: 100%;
+  background-image: url('/static/images/the_grumpy_fisherman.png');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.left-page img {
-    width: 100%;
-    height: auto;
-    max-height: 100%;
-    border-radius: 5px;
-    object-fit: cover;
+.story-overlay {
+  font-size: 16px;
+  position: absolute;
+  bottom: 70%;
+  left: 20%;
+  right: 20%;
+  background-color: #f3e5c2;
+  border-radius: 10px;
+  color: #333;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-top: 15px;
 }
 
-.right-page ul {
-    list-style-type: none;
-    padding: 0;
+/*right page*/
+.right-page-cover {
+  width: 42%;
+  height: 100%;
+  background-color: #fdfaf4;
+  background: linear-gradient(135deg, #fdfaf4 0%, #f5f0e6 100%);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.right-page ul li {
-    padding: 5px 0;
-    cursor: pointer;
-    color: #333;
-    text-decoration: underline;
-}
-
-.right-page p {
+.right-page-cover h2 {
     line-height: 1.6;
+    padding: 60px 0px 0px 60px;
+}
+
+.right-page-cover ul {
+    line-height: 1.6;
+    padding-left: 80px;
+    text-decoration: underline;
 }
 
 #next-button, #back-button {
@@ -72,16 +102,11 @@ body {
     right: 20px;
 }
 
-#back-button {
+#back-button-cover {
     left: 20px;
     display: none; /*to hide on the content page*/
 }
 
 #next-button:hover, #back-button:hover {
     background-color: #b57f55;
-}
-
-.story-text {
-    font-size: 16px;
-    margin-top: 15px;
 }
