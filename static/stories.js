@@ -15,13 +15,7 @@ let currentStoryIndex = null;
 let currentPageIndex = 0;
 
 // DOM elements
-const storyImageEl = document.getElementById("story-image");
-const storyTextLeft = document.getElementById("story-text-left");
-const storyTextRight = document.getElementById("story-text-right");
-const storyListContainer = document.getElementById("story-list-container");
 const storyListEl = document.getElementById("story-list");
-const storyParagraph = document.getElementById("story-paragraph");
-const backButton = document.getElementById("back-button");
 const nextButton = document.getElementById("next-button");
 
 // Setup story list
@@ -39,10 +33,10 @@ function populateStoryList() {
 function startStory(index) {
   currentStoryIndex = index;
   currentPageIndex = 0;
-  storyListContainer.style.display = "none";
-  storyParagraph.style.display = "flex";
-  updatePages();
+
+  updatePages(); // IMPORTANT: must be called to update image and text
 }
+
 
 // Updates both left and right page
 function updatePages() {
@@ -50,18 +44,15 @@ function updatePages() {
   const leftPage = story.pages[currentPageIndex];
   const rightPage = story.pages[currentPageIndex + 1];
 
-  storyImageEl.src = leftPage?.image || "";
-  storyTextLeft.textContent = leftPage?.text || "";
-  storyTextRight.textContent = rightPage?.text || "";
-
-  // Show/hide buttons
-  backButton.style.display = currentPageIndex > 0 ? "block" : "none";
+  // Buttons
   nextButton.textContent =
-    currentPageIndex + 2 >= story.pages.length ? "↺ Restart" : "Next →";
+    currentPageIndex + 2 >= story.pages.length ? "Back to Content" : "Next →";
 }
+
 
 // Next
 function goToNextPage() {
+  console.log("Next button clicked"); // for testing
   if (currentStoryIndex === null) {
     startStory(0); // Start first story
     return;
@@ -76,13 +67,6 @@ function goToNextPage() {
     // Back to story list
     currentStoryIndex = null;
     currentPageIndex = 0;
-    storyImageEl.src = "/static/images/the_grumpy_fisherman.png";
-    storyTextLeft.textContent = "";
-    storyTextRight.textContent = "";
-    storyTextRight.style.display = "none";
-    storyListContainer.style.display = "block";
-    storyParagraph.style.display = "none";
-    backButton.style.display = "none";
     nextButton.textContent = "Next →";
   }
 }
