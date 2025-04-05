@@ -1,42 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stories & Articles</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stories.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stories & Articles</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stories.css') }}">
 </head>
 <body>
 
-    <!-- Home Button-->
-        <div class="home-container">
-            <a href="/" class="home-btn">Home</a>
-        </div>
-    <div class="storybook-container" id="storybook">
-        <!-- Left Page -->
-        <div class="left-page-cover">
-          <div class="story-overlay">
-            <p id="story-text-left">
-                Discover languages through stories. <br>
-                Learn gently, enjoy deeply. <br>
-                For curious hearts of every age.
-            </p>
-          </div>
-            <button id="back-button-cover" onclick="goToPreviousPage()">← Back</button>
-        </div>
+  <!-- Home Button -->
+  <a href="/" class="home-btn">Home</a>
 
-        <!-- Right Page -->
-        <div class="right-page-cover">
-            <h2>Content</h2>
-            <ul id="story-list">
-                <li onclick="startStory(0)">The Grumpy Fisherman</li>
-            </ul>
-            <button id="next-button" onclick="goToNextPage()">Next →</button>
-        </div>
+  <div class="storybook-container" id="storybook">
 
+    <!-- === COVER PAGES === -->
+    <div class="cover-pages" id="cover-pages">
+      <!-- Left Cover Page -->
+      <div class="cover-left">
+        <img src="/static/images/the_grumpy_fisherman.png" alt="Cover Image"/>
+        <p id="cover-text-left">
+          <em><strong>The Grumpy Fisherman<br>
+          Discover languages through stories.<br>
+          Learn gently, enjoy deeply.</strong></em>
+        </p>
+      </div>
+
+      <!-- Right Cover Page -->
+      <div class="cover-right">
+        <h2>Content</h2>
+        <ul id="story-list">
+          <li onclick="startStory(0)">The Grumpy Fisherman</li>
+        </ul>
+        <button id="next-button-cover" onclick="goToNextPage()">Next →</button>
+      </div>
     </div>
 
-    <!-- Load external JavaScript -->
-    <script src="{{ url_for('static', filename='stories.js') }}"></script>
+    <!-- === STORY PAGES === -->
+    <div class="story-pages" id="story-pages" style="display: none;">
+      <!-- Left Story Page -->
+      <div class="story-left">
+<!--        <img src="/static/images/the_grumpy_fisherman.png" alt="Story Image Left"/>-->
+        <p id="story-text-left" class="story-text">This is page 1 (Left).</p>
+        <button id="back-button" onclick="goToPreviousPage()">← Back</button>
+      </div>
+
+      <!-- Right Story Page -->
+      <div class="story-right">
+        <p id="story-text-right" class="story-text">This is page 2 (Right).</p>
+        <button id="next-button" onclick="goToNextPage()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === HIDDEN STORY CONTENT === -->
+  <div id="hidden-story-pages" style="display: none;">
+    <div class="story-content">This is page 1 (Left).</div>
+    <div class="story-content">This is page 2 (Right).</div>
+    <div class="story-content">This is page 3 (Left).</div>
+    <div class="story-content">This is page 4 (Right).</div>
+    <!-- Add more pages here as needed -->
+  </div>
+
+  <!-- External JS -->
+  <script src="{{ url_for('static', filename='stories.js') }}"></script>
 </body>
 </html>

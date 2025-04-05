@@ -1,20 +1,20 @@
-body, html {
+body {
+  background-color: #faf3e0;
+  color: #333;
+  height: 100%;
+  overflow: hidden; /* Prevent scrollbars */
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevent scrollbars */
-  height: 100%;
-}
-
-.home-container {
-    text-align: left;  /* Centers the button */
-    margin: 10px 0px 0px 10px;    /* Adds space between game and button */
 }
 
 .home-btn {
-    display: inline-block;
+    position: absolute;
+    top: 20px;
+    left: 10px;
+    z-index: 10; /* ensure it's on top */
     padding: 8px 15px;
     font-size: 16px;
-    background-color: #9DC08B; /* Matches selected color */
+    background-color: #9DC08B;
     color: white;
     text-decoration: none;
     border-radius: 5px;
@@ -25,88 +25,188 @@ body, html {
     background-color: #7A9B74; /* Slightly darker on hover */
 }
 
+/* Container for the full book spread */
 .storybook-container {
-    display: flex;
-    justify-content: center;
-    height: 90vh;
-    gap: 0px;
-    box-sizing: border-box;
-    padding: 10px;
+  display: flex;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100vh;
+  margin: auto;
 }
 
-/*left page*/
-.left-page-cover {
-  width: 42%;
+/* Cover Pages */
+#cover-pages {
+  display: flex;
+  width: 80%;
   height: 100%;
-  background-image: url('/static/images/the_grumpy_fisherman.png');
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  gap: 0.3px;
 }
 
-.story-overlay {
-  font-size: 16px;
-  position: absolute;
-  bottom: 70%;
-  left: 20%;
-  right: 20%;
-  background-color: #f3e5c2;
-  border-radius: 10px;
-  color: #333;
+.cover-left {
+  position: relative;
+  display: flex;
+  width: 40%;
+  height: 90vh;
+  padding: 40px;
+  overflow: hidden;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  font-family: Arial, sans-serif;
-  font-style: italic;
-  font-weight: 500;
-  line-height: 1.5;
-  margin-top: 15px;
+  background-color: #fff8dc;
+  border: 1px solid #d8cfc1;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
 }
 
-/*right page*/
-.right-page-cover {
-  width: 42%;
-  height: 100%;
-  background-color: #fdfaf4;
-  background: linear-gradient(135deg, #fdfaf4 0%, #f5f0e6 100%);
-  background-size: cover;
-  background-position: center;
+.cover-left img {
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
+}
+
+.cover-right {
   position: relative;
-  border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  width: 40%;
+  height: 90vh;
+  padding: 40px;
+  overflow: hidden;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #fff8dc;
+  border: 1px solid #d8cfc1;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
 }
 
-.right-page-cover h2 {
-    line-height: 1.6;
-    padding: 60px 0px 0px 60px;
+#story-list {
+  list-style: none;
+  padding-left: 20px;
 }
 
-.right-page-cover ul {
-    line-height: 1.6;
-    padding-left: 80px;
-    text-decoration: underline;
+#story-list li {
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.3s ease;
 }
 
-#next-button, #back-button {
-    background-color: #d39b6d;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    position: absolute;
-    bottom: 20px;
+#story-list li:hover {
+  color: #007bff;
+}
+
+#next-button-cover {
+  margin-top: auto;
+  padding: 10px 20px;
+  background-color: #f4a261;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #fff;
+
+
+/* Story Pages */
+.story-pages {
+  display: flex;
+  width: 80%;
+  height: 100%;
+  gap: 0.3px;
+}
+
+
+.story-left {
+  position: relative;
+  display: flex;
+  width: 40%;
+  height: 90vh;
+  padding: 40px;
+  overflow: hidden;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #fff8dc;
+  border: 1px solid #d8cfc1;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+.story-left img {
+  width: 100%;
+  height: 90%;
+  object-fit: cover;
+}
+.story-right {
+  position: relative;
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  transition: transform 0.4s ease;
+  width: 40%;
+  height: 90vh;
+  overflow: hidden;
+  align-items: center;
+  text-align: center;
+  background-color: #FDFAF6;
+  border: 1px solid #d8cfc1;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-sizing: border-box;
+}
+
+#story-text-left,
+#story-text-right {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-top: 10px;
+}
+
+/* Navigation Buttons */
+#back-button,
+#next-button {
+  margin-top: auto;
+  padding: 10px 16px;
+  background-color: #2a9d8f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+#back-button {
+  align-self: flex-start;
 }
 
 #next-button {
-    right: 20px;
+  align-self: flex-end;
 }
 
-#back-button-cover {
-    left: 20px;
-    display: none; /*to hide on the content page*/
+/* Responsive */
+@media (max-width: 768px) {
+  .storybook-container {
+    flex-direction: column;
+  }
+
+  .left-page-cover,
+  .right-page-cover,
+  .story-left,
+  .story-right {
+    width: 100%;
+    height: 50%;
+  }
 }
 
-#next-button:hover, #back-button:hover {
-    background-color: #b57f55;
-}
