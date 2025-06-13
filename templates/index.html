@@ -58,7 +58,7 @@
                     <a href="?sort=desc">Z → A</a>
                   </div>
                 </div>
-                <button class="main-btn" id="filterButton" type="button">Filter by Tag</button>
+                <button class="main-btn" id="filterButton" type="button">Filter</button>
                 <div id="tagFilterBox" style="display: none;">
                     <div id="total-tags" style="font-weight: bold; margin-bottom: 10px;"></div> <!-- Display total tags -->
                     <form method="GET">
@@ -94,125 +94,64 @@
             </div>
           </div>
 
-            <!-- Add Form (Remove undefined 'word' usage) -->
-            {% if current_user.is_authenticated %}
-                <form action="/add" method="post">
-                    <input type="text" name="word" placeholder="word">
-                    <input type="text" name="meaning" placeholder="meaning">
-                    <input type="text" name="example" placeholder="example sentence">
-                    <input type="text" name="translation" placeholder="translation">
-                    <input type="text" name="tags" placeholder="tags">
-                    <button type="submit" class="main-btn">Save</button>
-                </form><br>
-            {% endif %}
+          <!-- Add Form (Remove undefined 'word' usage) -->
+          {% if current_user.is_authenticated %}
+            <form action="/add" method="post">
+            <input type="text" name="word" placeholder="word">
+            <input type="text" name="meaning" placeholder="meaning">
+            <input type="text" name="example" placeholder="example sentence">
+            <input type="text" name="translation" placeholder="translation">
+            <input type="text" name="tags" placeholder="tags">
+            <button type="submit" class="main-btn">Save</button>
+            </form><br>
+          {% endif %}
 
 
-    <div class="word-container">
-        <ul class="word-list">
-            {% for word in words[:10] %}
-                <li class="word-item">
-                    <strong>{{ word["word"] }}</strong>: {{ word["meaning"] }}
-                    <br> Example: {{ word["example"] }}
-                    <br> Translation: {{ word["translation"] }}
-                    <br>
+        <div class="word-container">
+            <ul class="word-list">
+                {% for word in words %}
+                    <li class="word-item">
+                        <strong>{{ word["word"] }}</strong>: {{ word["meaning"] }}
+                        <br> Example: {{ word["example"] }}
+                        <br> Translation: {{ word["translation"] }}
+                        <br>
 
-                    {% if word['tags'] %}
-                        {% for tag in word['tags'].split(',') %}
-                            <a href="?page=1&tag={{ tag.strip() }}&alphabet={{ selected_alphabet }}&sort={{ selected_sort }}">
-                                <button class="tag-btn tag tag.selected">{{ tag.strip() }}</button></a>
-                        {% endfor %}
-                    {% endif %}
+                        {% if word['tags'] %}
+                            {% for tag in word['tags'].split(',') %}
+                                <a href="?page=1&tag={{ tag.strip() }}&alphabet={{ selected_alphabet }}&sort={{ selected_sort }}">
+                                    <button class="tag-btn tag tag.selected">{{ tag.strip() }}</button></a>
+                            {% endfor %}
+                        {% endif %}
 
-                    <!-- Edit Form -->
-                    <div class="edit-form" id="editForm{{ word['id'] }}" style="display: none;">
-                        <form action="/edit" method="post">
-                            <input type="hidden" name="id" value="{{ word['id'] }}">
-                            <input type="text" name="word" value="{{ word['word'] }}" placeholder="word">
-                            <input type="text" name="meaning" value="{{ word['meaning'] }}" placeholder="meaning">
-                            <input type="text" name="example" value="{{ word['example'] }}" placeholder="example">
-                            <input type="text" name="translation" value="{{ word['translation'] }}" placeholder="translation">
-                            <input type="text" name="tags" value="{{ word['tags'] }}" placeholder="tags">
-                            <button type="submit">Save</button>
-                            <button type="button" onclick="toggleEdit('{{ word['id'] }}')">Cancel</button>
-                        </form>
-                    </div>
+                        <!-- Edit Form -->
+                        <div class="edit-form" id="editForm{{ word['id'] }}" style="display: none;">
+                            <form action="/edit" method="post">
+                                <input type="hidden" name="id" value="{{ word['id'] }}">
+                                <input type="text" name="word" value="{{ word['word'] }}" placeholder="word">
+                                <input type="text" name="meaning" value="{{ word['meaning'] }}" placeholder="meaning">
+                                <input type="text" name="example" value="{{ word['example'] }}" placeholder="example">
+                                <input type="text" name="translation" value="{{ word['translation'] }}" placeholder="translation">
+                                <input type="text" name="tags" value="{{ word['tags'] }}" placeholder="tags">
+                                <button type="submit">Save</button>
+                                <button type="button" onclick="toggleEdit('{{ word['id'] }}')">Cancel</button>
+                            </form>
+                        </div>
 
-                    <!-- Edit Button -->
-                    {% if current_user.is_authenticated %}
-                        <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
+                        <!-- Edit Button -->
+                        {% if current_user.is_authenticated %}
+                            <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
 
-                        <!-- Delete Form -->
-                        <form action="/delete" method="post" style="display: inline;">
-                            <input type="hidden" name="id" value="{{ word['id'] }}">
-                            <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
-                        </form>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-
-        <ul class="word-list">
-            {% for word in words[10:20] %}
-                <li class="word-item">
-                    <strong>{{ word["word"] }}</strong>: {{ word["meaning"] }}
-                    <br> Example: {{ word["example"] }}
-                    <br> Translation: {{ word["translation"] }}
-                    <br>
-
-                    {% if word['tags'] %}
-                        {% for tag in word['tags'].split(',') %}
-                            <a href="/filter?tag={{ tag.strip() }}">
-                                <button class="tag-btn tag tag.selected">{{ tag.strip() }}</button></a>
-                        {% endfor %}
-                    {% endif %}
-
-                    <!-- Edit Form -->
-                    <div class="edit-form" id="editForm{{ word['id'] }}" style="display: none;">
-                        <form action="/edit" method="post">
-                            <input type="hidden" name="id" value="{{ word['id'] }}">
-                            <input type="text" name="word" value="{{ word['word'] }}" placeholder="word">
-                            <input type="text" name="meaning" value="{{ word['meaning'] }}" placeholder="meaning">
-                            <input type="text" name="example" value="{{ word['example'] }}" placeholder="example">
-                            <input type="text" name="translation" value="{{ word['translation'] }}" placeholder="translation">
-                            <input type="text" name="tags" value="{{ word['tags'] }}" placeholder="tags">
-                            <button type="submit">Save</button>
-                            <button type="button" onclick="toggleEdit('{{ word['id'] }}')">Cancel</button>
-                        </form>
-                    </div>
-
-                    <!-- Edit Button -->
-                    {% if current_user.is_authenticated %}
-                        <button onclick="toggleEdit('{{ word['id'] }}')" class="edit-btn">Edit</button>
-
-                        <!-- Delete Form -->
-                        <form action="/delete" method="post" style="display: inline;">
-                            <input type="hidden" name="id" value="{{ word['id'] }}">
-                            <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
-                        </form>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <div class="pagination">
-        {% if page > 1 %}
-            <a href="?page=1&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">1</a>
-            <a href="?page={{ page-1 }}&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">Previous</a>
-        {% endif %}
-
-        {% for p in range(1, total_pages + 1) %}
-            {% if p == page %}
-                <a class="active">{{ p }}</a>
-            {% else %}
-                <a href="?page={{ p }}&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">{{ p }}</a>
-            {% endif %}
-        {% endfor %}
-
-        {% if page < total_pages %}
-            <a href="?page={{ page+1 }}&alphabet={{ selected_alphabet }}&tag={{ selected_tag }}&sort={{ selected_sort }}">Next</a>
-        {% endif %}
-    </div>
+                            <!-- Delete Form -->
+                            <form action="/delete" method="post" style="display: inline;">
+                                <input type="hidden" name="id" value="{{ word['id'] }}">
+                                <button type="submit" onclick="return confirm('Are you sure?')" class="delete-btn">Delete</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            <div id="loading" style="text-align:center; padding: 10px; display: none;">Loading...</div>
+        </div>
 
     <!-- Load external JavaScript -->
     <script src="{{ url_for('static', filename='script.js') }}"></script>

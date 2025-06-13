@@ -29,31 +29,6 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-
-        # Check if the username already exists
-        existing_user = User.query.filter_by(username=username).first()
-        if existing_user:
-            flash('Username already exists. Please choose another one.', 'danger')
-            return redirect(url_for('signup'))
-
-        hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        new_user = User(username=username, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-
-        # Automatically log in the user
-        login_user(new_user)
-        flash('Account created successfully! You are now logged in.', 'success')
-        return redirect(url_for('index'))  # Redirect to homepage
-
-    return render_template('signup.html')
-
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -125,9 +100,12 @@ init_db()
 
 # Database connection function
 def get_db():
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row  # Enables dictionary-like access
-    return conn
+    # conn = sqlite3.connect("database.db")
+    # conn.row_factory = sqlite3.Row  # Enables dictionary-like access
+    # return conn
+    db = sqlite3.connect('database.db')
+    db.row_factory = sqlite3.Row
+    return db
 
 
 @app.route('/')
@@ -135,21 +113,15 @@ def index():
     db = get_db()
     cursor = db.cursor()
 
-    # Get filters from request args
-    selected_alphabet = request.args.get("alphabet", "")
-    selected_tags = request.args.getlist("tags")
-    selected_sort = request.args.get("sort", "newest")
-    page = int(request.args.get("page", 1))  # Default to page 1
-    words_per_page = 20  # Limit words per page
-
-    # Fetch all words
+    # Start building query
     query = "SELECT * FROM vocabulary"
     conditions = []
 
-    # Apply filters
-    if selected_alphabet:
-        conditions.append(f"word LIKE '{selected_alphabet}%'")
+    # Get filters from request args
+    selected_tags = request.args.getlist("tags")
+    selected_sort = request.args.get("sort", "newest")
 
+    # Apply filters
     if selected_tags:
         tag_conditions = " AND ".join(f"tags LIKE '%{tag}%'" for tag in selected_tags)
         conditions.append(f"({tag_conditions})")
@@ -165,24 +137,25 @@ def index():
     else:  # Default: newest
         query += " ORDER BY id DESC"
 
-    # Count total words
-    cursor.execute(query)
-    total_words = len(cursor.fetchall())
+    # Apply limit after WHERE and ORDER BY
+    query += " LIMIT 20 OFFSET 0"
 
-    # Apply pagination
-    offset = (page - 1) * words_per_page
-    query += f" LIMIT {words_per_page} OFFSET {offset}"
+    # Now execute full query
     cursor.execute(query)
     words = cursor.fetchall()
 
-    # Pagination variables
-    total_pages = math.ceil(total_words / words_per_page)
+    # Count total words (no need to include LIMIT in count)
+    count_query = "SELECT COUNT(*) FROM vocabulary"
+    if conditions:
+        count_query += " WHERE " + " AND ".join(conditions)
+    cursor.execute(count_query)
+    total_words = cursor.fetchone()[0]
 
     # Fetch unique tags
     cursor.execute("SELECT tags FROM vocabulary")
     all_tags = cursor.fetchall()
 
-    tag_count = {}  # Dictionary to store tag counts
+    tag_count = {}
     tag_set = set()
 
     for row in all_tags:
@@ -190,21 +163,64 @@ def index():
             tag_list = [tag.strip() for tag in row["tags"].split(",") if tag.strip()]
             for tag in tag_list:
                 tag_set.add(tag)
-                tag_count[tag] = tag_count.get(tag, 0) + 1  # Count occurrences
+                tag_count[tag] = tag_count.get(tag, 0) + 1
 
     db.close()
 
     return render_template(
         'index.html',
         words=words,
-        tags=sorted(tag_set),  # ✅ Ensure tag_set is defined
+        tags=sorted(tag_set),
         tag_count=tag_count,
-        selected_alphabet=selected_alphabet,
         selected_tags=selected_tags,
         selected_sort=selected_sort,
-        page=page,  # ✅ Fixed missing comma
-        total_pages=total_pages
     )
+
+@app.route('/load_more_words')
+def load_more_words():
+    db = get_db()
+    cursor = db.cursor()
+
+    offset = int(request.args.get("offset", 0))
+    selected_tags = request.args.getlist("tags")
+    selected_sort = request.args.get("sort", "newest")
+
+    query = "SELECT * FROM vocabulary"
+    conditions = []
+
+    if selected_tags:
+        tag_conditions = " AND ".join(f"tags LIKE '%{tag}%'" for tag in selected_tags)
+        conditions.append(f"({tag_conditions})")
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    if selected_sort == "oldest":
+        query += " ORDER BY id ASC"
+    elif selected_sort == "alphabet":
+        query += " ORDER BY word ASC"
+    else:
+        query += " ORDER BY id DESC"
+
+    query += f" LIMIT 20 OFFSET {offset}"
+
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    db.close()
+
+    return jsonify([
+        {
+            "id": row["id"],
+            "word": row["word"],
+            "meaning": row["meaning"],
+            "example": row["example"],
+            "translation": row["translation"],
+            "tags": row["tags"]
+        }
+        for row in rows
+    ])
+
+
 
 
 @app.route('/search')

@@ -206,12 +206,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Additional Filters (Alphabet, Sort)
-    let alphabetFilter = document.getElementById("alphabet-filter");
     let tagFilter = document.getElementById("tag-filter");
     let sortFilter = document.getElementById("sort-filter");
 
     function applyFilters() {
-        let alphabet = "{{ selected_alphabet }}";  // Preserve alphabet filter
         let tag = "{{ selected_tag }}";  // Preserve selected tag
         let sort = document.getElementById("sort-filter").value;
 
@@ -254,7 +252,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Event Listeners for Filters
-    alphabetFilter.addEventListener("change", applyFilters);
     tagFilter.addEventListener("change", applyFilters);
     sortFilter.addEventListener("change", applyFilters);
 
@@ -281,5 +278,59 @@ document.addEventListener("DOMContentLoaded", function () {
         sortMenu.style.display = 'none';
         }
     });
+
+    let offset = 20;
+    let loading = false;
+
+    async function loadMoreWords() {
+      if (loading) return;
+      loading = true;
+      document.getElementById("loading").style.display = "block";
+
+      const params = new URLSearchParams(window.location.search); // gets existing ?tags&sort
+      params.set("offset", offset);
+      const res = await fetch(`/load_more_words?${params.toString()}`);
+
+      const data = await res.json();
+
+      const wordList = document.getElementById("wordList");
+
+      data.forEach(word => {
+        const li = document.createElement("li");
+        li.className = "word-item";
+        li.innerHTML = `
+          <strong>${word.word}</strong>: ${word.meaning}<br>
+          Example: ${word.example}<br>
+          Translation: ${word.translation}<br>
+          ${word.tags ? word.tags.split(',').map(tag => `
+            <a href="?tag=${tag.trim()}">
+              <button class="tag-btn tag">${tag.trim()}</button>
+            </a>`).join('') : ''}
+        `;
+        wordList.appendChild(li);
+      });
+
+      offset += data.length;
+      loading = false;
+      document.getElementById("loading").style.display = "none";
+
+      if (data.length < 20) {
+        document.getElementById("loading").innerText = "No more words";
+        document.querySelector(".word-container").removeEventListener("scroll", handleScroll);
+      }
+      console.log("Loading more with offset", offset);
+      console.log("Request URL:", `/load_more_words?${params.toString()}`);
+      console.log("Fetched:", data);
+    }
+
+    function handleScroll() {
+      const container = document.querySelector(".word-container");
+      if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
+        loadMoreWords();
+      }
+    }
+
+    document.querySelector(".word-container").addEventListener("scroll", handleScroll);
+
 
 });
