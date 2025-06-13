@@ -293,20 +293,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const data = await res.json();
 
-      const wordList = document.getElementById("wordList");
+      const wordList = document.querySelector(".word-list");
 
       data.forEach(word => {
         const li = document.createElement("li");
         li.className = "word-item";
-        li.innerHTML = `
-          <strong>${word.word}</strong>: ${word.meaning}<br>
-          Example: ${word.example}<br>
-          Translation: ${word.translation}<br>
-          ${word.tags ? word.tags.split(',').map(tag => `
-            <a href="?tag=${tag.trim()}">
-              <button class="tag-btn tag">${tag.trim()}</button>
-            </a>`).join('') : ''}
+
+        // Create the HTML structure that matches the template
+        let wordHTML = `
+          <strong class="word-title">${word.word}</strong>: ${word.meaning}
+          <br> Example: ${word.example}
+          <br> Translation: ${word.translation}
+          <br>
         `;
+
+        // Add tags with the same structure as in the template
+        if (word.tags) {
+          wordHTML += word.tags.split(',').map(tag => `
+            <a href="?page=1&tag=${tag.trim()}&alphabet=${params.get('alphabet') || ''}&sort=${params.get('sort') || 'newest'}">
+              <button class="tag-btn tag">${tag.trim()}</button>
+            </a>`).join('');
+        }
+
+        li.innerHTML = wordHTML;
         wordList.appendChild(li);
       });
 

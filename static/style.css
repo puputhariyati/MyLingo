@@ -3,6 +3,7 @@ body, html {
   margin: 0;
   padding: 0;
   height: 100%;
+  width: 100%;
   overflow: hidden; /* prevent global scroll */
   font-family: sans-serif;
 }
@@ -345,3 +346,62 @@ input[type="checkbox"] {
     margin-top: 5px; /* Small gap from the button */
 }
 
+/* Responsive layout for mobile */
+@media (max-width: 768px) {
+
+  /* Topbar adjustments */
+  .topbar {
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .flag-icon {
+    order: -1; /* Move to left side */
+    margin-left: 10px;
+  }
+
+  /* Sidebar becomes bottom bar */
+  .sidebar ul li .label {
+    display: none; /* hides text label */
+  }
+
+  .sidebar ul li .icon {
+    font-size: 24px;
+    display: inline-block;
+  }
+
+    .sidebar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: auto;
+      height: 60px;
+      width: 100vw; /* or 100% */
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      z-index: 999;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    }
+
+
+  .sidebar ul {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sidebar .logo {
+    display: none;
+  }
+
+  .container {
+    padding-bottom: 70px;
+  }
+}

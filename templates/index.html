@@ -12,16 +12,16 @@
         <div class="sidebar">
             <div class="logo">mailingo</div>
             <ul>
-                <li>📘 vocab</li>
-                <li>🔤 letters</li>
-                <li><a href="{{ url_for('game') }}">🔗 match words</a></li>
-                <li><a href="{{ url_for('quiz') }}">❓ guess it</a></li>
-                <li><a href="{{ url_for('stories') }}">📝 notes</a></li>
+                <li><span class="icon">📘</span><span class="label">vocab</span></li>
+                <li><span class="icon">🔤</span><span class="label">letters</span></li>
+                <li><a href="{{ url_for('game') }}"><span class="icon">🔗</span><span class="label">match words</span></a></li>
+                <li><a href="{{ url_for('quiz') }}"><span class="icon">❓</span><span class="label">guess it</span></a></li>
+                <li><a href="{{ url_for('stories') }}"><span class="icon">📝</span><span class="label">notes</span></a></li>
                 {% if current_user.is_authenticated %}
                     <p>Welcome, {{ current_user.username }}!</p>
                     <li></li><a href="{{ url_for('logout') }}"><button id="logout-btn">Logout</button></a></li>
                 {% else %}
-                    <li id="login-button" style="cursor: pointer;">👤 log in</li>
+                    <li id="login-button" style="cursor: pointer;"><span class="icon">👤</span><span class="label">log in</span></li>
                 {% endif %}
             </ul>
         </div>

@@ -182,7 +182,11 @@ def load_more_words():
     cursor = db.cursor()
 
     offset = int(request.args.get("offset", 0))
+    # Handle both 'tag' (singular) and 'tags' (plural) parameters
     selected_tags = request.args.getlist("tags")
+    tag = request.args.get("tag")
+    if tag and tag not in selected_tags:
+        selected_tags.append(tag)
     selected_sort = request.args.get("sort", "newest")
 
     query = "SELECT * FROM vocabulary"
