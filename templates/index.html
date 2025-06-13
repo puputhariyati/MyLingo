@@ -8,7 +8,17 @@
 </head>
 
 <body>
-    <h1><a href="{{ url_for('index') }}" style="text-decoration: none; color: inherit;">MyLingo</a></h1>
+    <div class="sidebar">
+        <div class="logo">mailingo</div>
+        <ul>
+            <li>📘 learn</li>
+            <li>🔤 letters</li>
+            <li>🔗 match words</li>
+            <li>❓ guess it</li>
+            <li>📝 notes</li>
+            <li>👤 Login</li>
+        </ul>
+    </div>
 
     <div id="login-container">
         {% if current_user.is_authenticated %}
@@ -61,8 +71,6 @@
             <button class="main-btn">Match the Words</button></a>
         <a href="{{ url_for('quiz') }}">
             <button class="main-btn">Language Quiz</button></a>
-        <a href="{{ url_for('words_table') }}">
-            <button class="main-btn">Words Table</button></a>
         <a href="{{ url_for('stories') }}">
             <button class="main-btn">Stories & Articles</button></a>
     </div>
