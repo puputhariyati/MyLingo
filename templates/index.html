@@ -8,117 +8,104 @@
 </head>
 
 <body>
-    <div class="sidebar">
-        <div class="logo">mailingo</div>
-        <ul>
-            <li>📘 learn</li>
-            <li>🔤 letters</li>
-            <li>🔗 match words</li>
-            <li>❓ guess it</li>
-            <li>📝 notes</li>
-            <li>👤 Login</li>
-        </ul>
-    </div>
-
-    <div id="login-container">
-        {% if current_user.is_authenticated %}
-            <p>Welcome, {{ current_user.username }}!</p>
-            <a href="{{ url_for('logout') }}"><button id="logout-btn">Logout</button></a>
-        {% else %}
-            <button id="login-button">Login</button>
-        {% endif %}
-    </div>
-
-    <!-- Login Box (Initially Hidden) -->
-    <div id="login-box" style="display: none;">
-        <h2>Login</h2>
-        <form id="login-form" method="POST" action="{{ url_for('login') }}">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <button id="submit-login" type="submit">Submit</button>
-        </form>
-
-        <p>Don't have an account? <a href="{{ url_for('signup') }}">Sign Up</a></p>
-        <button id="close-login">Close</button>
-    </div>
-
-    <!-- Search Form -->
-    <form action="/search" method="get">
-        <input type="text" name="query" placeholder="Search for a word..." required>
-        <button type="submit" class="main-btn">Search</button>
-    </form>
-
-    <!-- Add Form (Remove undefined 'word' usage) -->
-    {% if current_user.is_authenticated %}
-        <form action="/add" method="post">
-            <input type="text" name="word" placeholder="word">
-            <input type="text" name="meaning" placeholder="meaning">
-            <input type="text" name="example" placeholder="example sentence">
-            <input type="text" name="translation" placeholder="translation">
-            <input type="text" name="tags" placeholder="tags">
-            <button type="submit" class="main-btn">Save</button>
-        </form><br>
-    {% endif %}
-
-
-<!--    Other pages links-->
-    <div class="center-container">
-        <a href="{{ url_for('game') }}">
-            <button class="main-btn">Match the Words</button></a>
-        <a href="{{ url_for('quiz') }}">
-            <button class="main-btn">Language Quiz</button></a>
-        <a href="{{ url_for('stories') }}">
-            <button class="main-btn">Stories & Articles</button></a>
-    </div>
-
-    <!-- Filters and Sorting Form -->
-    <form method="GET" action="/" style="margin-bottom: 20px;">
-
-        <label for="alphabet-filter">Alphabet:</label>
-        <select name="alphabet" id="alphabet-filter" onchange="this.form.submit()">
-            <option value="">All</option>
-            {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
-                <option value="{{ letter }}" {% if selected_letter == letter %}selected{% endif %}>{{ letter }}</option>
-            {% endfor %}
-        </select>
-
-        <label for="sort-filter">Sort by:</label>
-        <select name="sort" id="sort-filter" onchange="this.form.submit()">
-            <option value="newest" {% if selected_sort == "newest" %}selected{% endif %}>Newest</option>
-            <option value="oldest" {% if selected_sort == "oldest" %}selected{% endif %}>Oldest</option>
-            <option value="alphabet" {% if selected_sort == "alphabet" %}selected{% endif %}>Alphabetical</option>
-        </select>
-
-        <button class="main-btn" id="filterButton" type="button">Filter by Tag</button>
-        <div id="tagFilterBox" style="display: none;">
-            <div id="total-tags" style="font-weight: bold; margin-bottom: 10px;"></div> <!-- Display total tags -->
-            <form method="GET">
-                <table>
-                    <tr>
-                        {% for tag in tags %}
-                            {% if loop.index0 % 2 == 0 %} <!-- Start a new row every 2 items -->
-                                </tr><tr>
-                            {% endif %}
-                            <td>
-                                <input type="checkbox" name="tags" value="{{ tag }}"
-                                    {% if tag in selected_tag %}checked{% endif %}>
-                                {{ tag }}
-                                <span id="count-{{ tag|replace(' ', '-') }}" class="tag-count">
-                                    ({{ tag_count.get(tag, 0) }})
-                                </span> <!-- ✅ Dynamically show count -->
-                            </td>
-                        {% endfor %}
-                    </tr>
-                </table>
-                <button class="main-btn" type="submit">Apply Filters</button>
-            </form>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">mailingo</div>
+            <ul>
+                <li>📘 vocab</li>
+                <li>🔤 letters</li>
+                <li><a href="{{ url_for('game') }}">🔗 match words</a></li>
+                <li><a href="{{ url_for('quiz') }}">❓ guess it</a></li>
+                <li><a href="{{ url_for('stories') }}">📝 notes</a></li>
+                {% if current_user.is_authenticated %}
+                    <p>Welcome, {{ current_user.username }}!</p>
+                    <li></li><a href="{{ url_for('logout') }}"><button id="logout-btn">Logout</button></a></li>
+                {% else %}
+                    <li id="login-button" style="cursor: pointer;">👤 log in</li>
+                {% endif %}
+            </ul>
         </div>
 
-    </form>
+        <!-- Login Box (OAuth Only) -->
+        <div id="login-box">
+            <span id="close-login" >❌</span>
+            <h2>Log in</h2>
+            <div class="oauth-buttons">
+                <a href="{{ url_for('login') }}">
+                    <button class="oauth-btn google">Login with Google</button>
+                </a><br>
+                <a href="{{ url_for('login') }}">
+                    <button class="oauth-btn facebook">Login with Facebook</button>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main">
+          <!-- Top Bar -->
+          <div class="topbar">
+            <form action="/search" method="get" class="search-bar">
+                <input type="text" name="query" placeholder="Search for a word 🔎" required>
+            </form>
+            <!-- Filters and Sorting Form -->
+            <form method="GET" action="/" style="margin-bottom: 20px;">
+                <div class="dropdown" id="sort-dropdown">
+                  <button class="main-btn" id="sortButton" type="button">Sort</button>
+                  <div class="dropdown-menu" id="sortMenu">
+                    <a href="?sort=newest">Newest</a>
+                    <a href="?sort=oldest">Oldest</a>
+                    <a href="?sort=asc">A → Z</a>
+                    <a href="?sort=desc">Z → A</a>
+                  </div>
+                </div>
+                <button class="main-btn" id="filterButton" type="button">Filter by Tag</button>
+                <div id="tagFilterBox" style="display: none;">
+                    <div id="total-tags" style="font-weight: bold; margin-bottom: 10px;"></div> <!-- Display total tags -->
+                    <form method="GET">
+                        <table>
+                            <tr>
+                                {% for tag in tags %}
+                                    {% if loop.index0 % 2 == 0 %} <!-- Start a new row every 2 items -->
+                                        </tr><tr>
+                                    {% endif %}
+                                    <td>
+                                        <input type="checkbox" name="tags" value="{{ tag }}"
+                                            {% if tag in selected_tag %}checked{% endif %}>
+                                        {{ tag }}
+                                        <span id="count-{{ tag|replace(' ', '-') }}" class="tag-count">
+                                            ({{ tag_count.get(tag, 0) }})
+                                        </span> <!-- ✅ Dynamically show count -->
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        </table>
+                        <button class="main-btn" type="submit">Apply Filters</button>
+                    </form>
+                </div>
+            </form>
+            <span class="counter">W 100</span>
+            <div class="language-toggle">
+              <span class="flag-icon" id="flag-dropdown-toggle">🌐</span>
+              <div class="language-dropdown" id="language-dropdown">
+                <a href="?lang=ja">🇯🇵</a>
+                <a href="?lang=fr">🇫🇷</a>
+                <a href="?lang=ru">🇷🇺</a>
+              </div>
+            </div>
+          </div>
+
+            <!-- Add Form (Remove undefined 'word' usage) -->
+            {% if current_user.is_authenticated %}
+                <form action="/add" method="post">
+                    <input type="text" name="word" placeholder="word">
+                    <input type="text" name="meaning" placeholder="meaning">
+                    <input type="text" name="example" placeholder="example sentence">
+                    <input type="text" name="translation" placeholder="translation">
+                    <input type="text" name="tags" placeholder="tags">
+                    <button type="submit" class="main-btn">Save</button>
+                </form><br>
+            {% endif %}
+
 
     <div class="word-container">
         <ul class="word-list">
@@ -128,9 +115,6 @@
                     <br> Example: {{ word["example"] }}
                     <br> Translation: {{ word["translation"] }}
                     <br>
-
-                    <!-- Debugging: Display the tags as text -->
-<!--                    <small>Tags: {{ word['tags'] }}</small>-->
 
                     {% if word['tags'] %}
                         {% for tag in word['tags'].split(',') %}

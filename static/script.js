@@ -172,6 +172,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
+
+    const toggle = document.getElementById('flag-dropdown-toggle');
+    const dropdown = document.getElementById('language-dropdown');
+
+    toggle.addEventListener('click', () => {
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close the dropdown if user clicks outside
+    document.addEventListener('click', function (e) {
+    if (!toggle.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = 'none';
+    }
+    });
+
+
+
     // Function to filter words based on selected tags
     function filterWords() {
         document.querySelectorAll('.word-item').forEach(item => {
@@ -249,5 +266,20 @@ document.addEventListener("DOMContentLoaded", function () {
         filterWords();
     });
 
+    const sortButton = document.getElementById('sortButton');
+    const sortMenu = document.getElementById('sortMenu');
+
+    // Toggle dropdown on click
+    sortButton.addEventListener('click', function (e) {
+        e.stopPropagation(); // Prevent click from bubbling up
+        sortMenu.style.display = (sortMenu.style.display === 'block') ? 'none' : 'block';
+    });
+
+    // Close dropdown if clicked outside
+    document.addEventListener('click', function (e) {
+        if (!document.getElementById('sort-dropdown').contains(e.target)) {
+        sortMenu.style.display = 'none';
+        }
+    });
 
 });
