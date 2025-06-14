@@ -1,7 +1,8 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, flash, session
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from flask_dance.contrib.google import make_google_blueprint, google
+from models import User
 import sqlite3
 import unicodedata
 import random
@@ -14,41 +15,46 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 
 login_manager = LoginManager()
+login_manager.login_view = "google.login"
 login_manager.init_app(app)
-login_manager.login_view = 'login'
 
-
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
-
+# Configure Google OAuth
+google_bp = make_google_blueprint(
+    client_id="YOUR_GOOGLE_CLIENT_ID",
+    client_secret="YOUR_GOOGLE_CLIENT_SECRET",
+    redirect_url="/google_login/callback",
+    scope=["profile", "email"]
+)
+app.register_blueprint(google_bp, url_prefix="/google_login")
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+@app.route("/google_login/callback")
+def google_login():
+    if not google.authorized:
+        return redirect(url_for("google.login"))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('index'))  # Redirect to homepage
-        else:
-            flash('Invalid username or password.', 'danger')
-    return redirect(url_for('index'))  # Redirect to homepage
+    resp = google.get("/oauth2/v2/userinfo")
+    if resp.ok:
+        user_info = resp.json()
+        email = user_info["email"]
+        username = user_info["name"]
 
+        # Check if user exists
+        user = User.query.filter_by(email=email).first()
+        if not user:
+            user = User(username=username, email=email)
+            db.session.add(user)
+            db.session.commit()
 
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    return render_template('dashboard.html', user=current_user)
-
+        login_user(user)
+        flash(f"Welcome, {username}!", "success")
+        return redirect(url_for("index"))
+    else:
+        flash("Google login failed.", "danger")
+        return redirect(url_for("index"))
 
 @app.route('/logout')
 @login_required
@@ -56,6 +62,11 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('index'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', user=current_user)
 
 
 # Initialize Database

@@ -28,13 +28,15 @@
 
         <!-- Login Box (OAuth Only) -->
         <div id="login-box">
-            <span id="close-login" >❌</span>
+            <span id="close-login">❌</span>
             <h2>Log in</h2>
             <div class="oauth-buttons">
-                <a href="{{ url_for('login') }}">
+                <!-- Google Login -->
+                <a href="{{ url_for('google.login') }}">
                     <button class="oauth-btn google">Login with Google</button>
                 </a><br>
-                <a href="{{ url_for('login') }}">
+                <!-- Facebook Login -->
+                <a href="{{ url_for('google.login') }}">
                     <button class="oauth-btn facebook">Login with Facebook</button>
                 </a>
             </div>

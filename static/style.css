@@ -201,7 +201,7 @@ button {
 /* Login Box - Initially Hidden */
 #login-box {
     display: none;
-    position: relative;
+    position: fixed; /* Changed from relative to fixed for proper centering */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -211,8 +211,12 @@ button {
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     width: 300px;
+    max-height: 90vh; /* Prevent it from being taller than the screen */
+    overflow-y: auto;  /* Scroll if content overflows */
     text-align: center;
+    z-index: 1000;     /* Make sure it appears on top */
 }
+
 
 .oauth-buttons {
     display: flex;
